@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light dark" />
-  <title>MiniGram v5.3</title>
+  <title>MiniGram v5.4</title>
   <style>
     :root {
       --bg: #fafafa;
@@ -53,7 +53,7 @@
     }
 
     .topbar-inner {
-      width: min(920px, calc(100% - 28px));
+      width: min(1120px, calc(100% - 28px));
       height: 64px;
       margin: 0 auto;
       display: flex;
@@ -112,11 +112,11 @@
     }
 
     .layout {
-      width: min(920px, calc(100% - 28px));
+      width: min(1120px, calc(100% - 28px));
       margin: 28px auto 60px;
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 28px;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 24px;
       align-items: start;
     }
 
@@ -145,9 +145,12 @@
       flex: 0 0 auto;
       width: 42px;
       height: 42px;
+      aspect-ratio: 1 / 1;
       border-radius: 50%;
       display: grid;
       place-items: center;
+      overflow: hidden;
+      padding: 0;
       color: white;
       font-weight: 800;
       background:
@@ -576,14 +579,15 @@
       line-height: 1.55;
     }
 
-    @media (max-width: 820px) {
+    @media (max-width: 980px) {
       .layout {
         grid-template-columns: 1fr;
-        width: min(600px, calc(100% - 20px));
+        width: min(680px, calc(100% - 20px));
         margin-top: 18px;
       }
+      .desktop-sidebar { display: none !important; }
       .sidebar { display: block; position: static; }
-      .topbar-inner { width: min(600px, calc(100% - 20px)); }
+      .topbar-inner { width: min(680px, calc(100% - 20px)); }
     }
 
     @media (max-width: 480px) {
@@ -862,7 +866,8 @@
     }
 
     .single-column-shell {
-      width: min(640px, 100%);
+      width: 100%;
+      max-width: 720px;
       margin: 0 auto;
     }
 
@@ -972,7 +977,8 @@
     .mini-post-copy span { color:var(--muted); font-size:11px; }
     .mini-post-body { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.5; }
     .mini-post img { width:100%; max-height:320px; object-fit:cover; border-radius:9px; margin-top:9px; border:1px solid var(--line); }
-    .avatar img { width:100%; height:100%; object-fit:cover; display:block; border-radius:50%; }
+    .avatar img { width:100%; height:100%; aspect-ratio:1/1; object-fit:cover; object-position:center; display:block; border-radius:50%; }
+    .profile-main-avatar { width:84px; height:84px; border-width:4px; }
     .profile-avatar-actions { display:flex; gap:7px; flex-wrap:wrap; margin-top:12px; }
     .profile-avatar-actions input { display:none; }
     .character-placeholder { margin-top:14px; border:1px dashed var(--line); border-radius:12px; padding:18px; text-align:center; color:var(--muted); }
@@ -988,6 +994,45 @@
       .room-grid { grid-template-columns:1fr; }
       .member-row { align-items:flex-start; }
     }
+
+    /* ===== v5.4 desktop sidebar / ranks / app admin ===== */
+    .desktop-sidebar { position: sticky; top: 88px; display: grid; gap: 12px; }
+    .desktop-side-card { padding: 15px; }
+    .desktop-user { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .desktop-user-copy { min-width:0; }
+    .desktop-user-copy strong, .desktop-user-copy span { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .desktop-user-copy span { color:var(--muted); font-size:12px; margin-top:2px; }
+    .desktop-menu { display:grid; gap:5px; }
+    .desktop-menu button { width:100%; border:0; background:transparent; color:var(--text); text-align:left; border-radius:9px; padding:10px 11px; cursor:pointer; font-weight:750; }
+    .desktop-menu button:hover, .desktop-menu button.active { background:var(--surface-2); }
+    .desktop-room-summary { display:grid; gap:6px; font-size:13px; }
+    .desktop-room-summary span { color:var(--muted); }
+    .role-badge { display:inline-flex; align-items:center; width:max-content; border:1px solid var(--line); border-radius:999px; padding:3px 7px; font-size:10px; font-weight:800; background:var(--surface); }
+    .member-role-select { border:1px solid var(--line); background:var(--surface); color:var(--text); border-radius:7px; padding:5px 6px; font-size:11px; font-weight:700; }
+    .room-count-badge { color:var(--muted); font-size:12px; font-weight:700; margin-left:5px; }
+    .room-limit-row { display:flex; gap:7px; flex-wrap:wrap; align-items:center; margin-top:8px; }
+    .room-limit-row input { width:100px; border:1px solid var(--line); background:var(--surface-2); color:var(--text); border-radius:9px; padding:9px 10px; }
+    .invite-link-preview { margin-top:8px; color:var(--muted); font-size:11px; line-height:1.45; overflow-wrap:anywhere; }
+    .admin-toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+    .admin-toolbar select { min-width:180px; border:1px solid var(--line); background:var(--surface-2); color:var(--text); border-radius:9px; padding:10px 11px; }
+    .admin-summary-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:14px; }
+    .admin-stat { border:1px solid var(--line); background:var(--surface); border-radius:11px; padding:12px; }
+    .admin-stat strong { display:block; font-size:20px; }
+    .admin-stat span { color:var(--muted); font-size:11px; }
+    .admin-list { display:grid; gap:10px; }
+    .admin-post-card { border:1px solid var(--line); background:var(--surface); border-radius:12px; padding:13px; }
+    .admin-post-meta { color:var(--muted); font-size:11px; margin-bottom:8px; line-height:1.45; }
+    .admin-post-body { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.5; }
+    .admin-comments { display:grid; gap:6px; margin-top:10px; }
+    .admin-comment-row { border-top:1px solid var(--line); padding-top:7px; font-size:12px; display:flex; gap:8px; align-items:flex-start; }
+    .admin-comment-row span { flex:1; overflow-wrap:anywhere; }
+    .admin-room-card { border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:10px; font-size:12px; }
+    .admin-room-card strong { display:block; margin-bottom:3px; }
+    @media (min-width:981px){
+      .bottom-nav { display:none; }
+      body { padding-bottom:28px; }
+    }
+    @media (max-width:520px){ .admin-summary-grid { grid-template-columns:1fr; } }
 
 </style>
 </head>
@@ -1024,6 +1069,7 @@
               <strong>새 방 만들기</strong>
               <div class="room-toolbar">
                 <input id="roomCreateName" maxlength="40" placeholder="방 이름 (예: 96즈 아지트)" />
+                <input id="roomCreateMax" type="number" min="2" max="200" value="30" aria-label="방 최대 인원" style="max-width:110px" />
                 <button id="roomCreateBtn" class="soft-btn">만들기</button>
               </div>
             </div>
@@ -1040,19 +1086,25 @@
               <div class="room-box">
                 <strong id="currentRoomName">현재 방</strong>
                 <div class="invite-code" id="currentInviteCode">--------</div>
-                <button id="copyInviteBtn" class="soft-btn">초대코드 복사</button>
+                <button id="copyInviteBtn" class="soft-btn">초대링크 복사</button>
+                <div id="currentInviteLink" class="invite-link-preview"></div>
               </div>
               <div class="room-box">
-                <strong>현재 참여 멤버</strong>
+                <strong>현재 참여 멤버 <span id="roomMemberCount" class="room-count-badge">0 / 30</span></strong>
                 <div id="roomMemberList" class="member-list"></div>
               </div>
             </div>
             <div id="adminPanel" class="admin-panel" hidden>
-              <strong>🛠 관리자 모드</strong>
+              <strong>🛠 방 관리 (방장/부방장)</strong>
               <div class="admin-row">
                 <input id="adminRoomName" maxlength="40" placeholder="방 이름 변경" />
                 <button id="renameRoomBtn" class="soft-btn">이름 변경</button>
                 <button id="regenInviteBtn" class="soft-btn">초대코드 재발급</button>
+              </div>
+              <div class="room-limit-row">
+                <label for="adminMaxMembers">최대 인원</label>
+                <input id="adminMaxMembers" type="number" min="2" max="200" value="30" />
+                <button id="saveRoomSettingsBtn" class="soft-btn">인원 설정 저장</button>
               </div>
               <div class="admin-row">
                 <button id="leaveRoomBtn" class="soft-btn">방 나가기</button>
@@ -1148,7 +1200,7 @@
         <div class="composer-row">
           <div id="composerAvatar" class="avatar"><span>?</span></div>
           <input id="guestPostName" class="guest-name-input" maxlength="20" placeholder="닉네임" />
-          <input id="guestPostPassword" class="guest-password-input" type="password" minlength="4" maxlength="50" placeholder="비밀번호" />
+          <input id="guestPostPassword" class="guest-password-input" type="password" minlength="4" maxlength="50" placeholder="비로그인 수정용 비밀번호" autocomplete="one-time-code" name="guest-post-edit-code" data-lpignore="true" data-1p-ignore="true" />
           <input id="postInput" class="composer-input" maxlength="500" placeholder="로그인 없이도 글을 남길 수 있어요" />
           <button id="postBtn" class="primary-btn">게시</button>
         </div>
@@ -1178,13 +1230,34 @@
       <section id="feedList"></section>
     </section>
 
+    <section id="view-admin" class="app-view">
+      <h2 class="tab-page-title">🛡 MiniGram 어드민</h2>
+      <p class="tab-page-sub">사이트 전체 방·게시글·댓글을 확인하고 관리하는 운영자 전용 화면이야.</p>
+      <div class="admin-summary-grid">
+        <div class="admin-stat"><strong id="adminRoomCount">0</strong><span>전체 방</span></div>
+        <div class="admin-stat"><strong id="adminPostCount">0</strong><span>최근 게시글</span></div>
+        <div class="admin-stat"><strong id="adminCommentCount">0</strong><span>최근 댓글</span></div>
+      </div>
+      <article class="memory-card">
+        <div class="admin-toolbar">
+          <select id="adminRoomFilter" aria-label="어드민 방 필터"><option value="">모든 방</option></select>
+          <button id="adminRefreshBtn" class="soft-btn">새로고침</button>
+        </div>
+        <div class="eyebrow">🏠 방 현황</div>
+        <div id="adminRoomList" class="admin-list" style="margin:10px 0 18px"></div>
+        <div class="eyebrow">📝 전체 글 관리</div>
+        <div id="adminPostList" class="admin-list" style="margin-top:10px"></div>
+        <p id="appAdminStatus" class="status"></p>
+      </article>
+    </section>
+
     <section id="view-profile" class="app-view">
       <h2 class="tab-page-title">내정보</h2>
       <p class="tab-page-sub">내 프로필과 내가 남긴 기록을 한곳에서 관리해.</p>
       <aside class="sidebar">
         <section id="profilePanel" class="card profile-box" hidden>
           <div class="profile-line">
-            <div id="sideAvatar" class="avatar"><span>?</span></div>
+            <div id="sideAvatar" class="avatar profile-main-avatar"><span>?</span></div>
             <div class="profile-copy">
               <strong id="sideUsername">사용자</strong>
               <span id="sideEmail"></span>
@@ -1215,6 +1288,34 @@
     </section>
 
   </section>
+
+  <aside id="desktopSidebar" class="desktop-sidebar" aria-label="PC 우측 메뉴">
+    <section class="card desktop-side-card">
+      <div class="desktop-user">
+        <div id="desktopAvatar" class="avatar"><span>?</span></div>
+        <div class="desktop-user-copy">
+          <strong id="desktopUsername">게스트</strong>
+          <span id="desktopUserRole">로그인 전</span>
+        </div>
+      </div>
+      <div class="desktop-menu">
+        <button class="desktop-nav-btn active" data-tab="home">🏠 홈</button>
+        <button class="desktop-nav-btn" data-tab="memories">📸 공동추억</button>
+        <button class="desktop-nav-btn" data-tab="capsules">⏳ 타임캡슐</button>
+        <button class="desktop-nav-btn" data-tab="feed">💬 피드</button>
+        <button class="desktop-nav-btn" data-tab="profile">👤 내정보</button>
+        <button id="desktopAdminBtn" class="desktop-nav-btn" data-tab="admin" hidden>🛡 어드민</button>
+      </div>
+    </section>
+    <section class="card desktop-side-card">
+      <div class="eyebrow">👥 현재 우리 방</div>
+      <div class="desktop-room-summary">
+        <strong id="desktopRoomName">선택된 방 없음</strong>
+        <span id="desktopRoomCount">0명</span>
+        <span id="desktopRoomRole">-</span>
+      </div>
+    </section>
+  </aside>
 </main>
 
 <nav class="bottom-nav" aria-label="MiniGram 메뉴">
@@ -1223,6 +1324,7 @@
   <button data-tab="capsules"><span>⏳</span><span>캡슐</span></button>
   <button data-tab="feed"><span>💬</span><span>피드</span></button>
   <button data-tab="profile"><span>👤</span><span>내정보</span></button>
+  <button id="bottomAdminBtn" data-tab="admin" hidden><span>🛡</span><span>어드민</span></button>
 </nav>
 
 
@@ -1275,10 +1377,10 @@
       authModal: $("authModal"), loginTab: $("loginTab"), signupTab: $("signupTab"), modalTitle: $("modalTitle"), modalSub: $("modalSub"),
       usernameField: $("usernameField"), usernameInput: $("usernameInput"), emailInput: $("emailInput"), passwordInput: $("passwordInput"),
       authStatus: $("authStatus"), closeModalBtn: $("closeModalBtn"), submitAuthBtn: $("submitAuthBtn"),
-      roomLoggedOut: $("roomLoggedOut"), roomLoggedIn: $("roomLoggedIn"), roomSelect: $("roomSelect"), roomCreateName: $("roomCreateName"),
+      roomLoggedOut: $("roomLoggedOut"), roomLoggedIn: $("roomLoggedIn"), roomSelect: $("roomSelect"), roomCreateName: $("roomCreateName"), roomCreateMax: $("roomCreateMax"),
       roomCreateBtn: $("roomCreateBtn"), roomJoinCode: $("roomJoinCode"), roomJoinBtn: $("roomJoinBtn"), currentRoomArea: $("currentRoomArea"),
-      currentRoomName: $("currentRoomName"), currentInviteCode: $("currentInviteCode"), copyInviteBtn: $("copyInviteBtn"), roomMemberList: $("roomMemberList"),
-      roomStatus: $("roomStatus"), adminPanel: $("adminPanel"), adminRoomName: $("adminRoomName"), renameRoomBtn: $("renameRoomBtn"),
+      currentRoomName: $("currentRoomName"), currentInviteCode: $("currentInviteCode"), currentInviteLink: $("currentInviteLink"), copyInviteBtn: $("copyInviteBtn"), roomMemberList: $("roomMemberList"), roomMemberCount: $("roomMemberCount"),
+      roomStatus: $("roomStatus"), adminPanel: $("adminPanel"), adminRoomName: $("adminRoomName"), adminMaxMembers: $("adminMaxMembers"), saveRoomSettingsBtn: $("saveRoomSettingsBtn"), renameRoomBtn: $("renameRoomBtn"),
       regenInviteBtn: $("regenInviteBtn"), leaveRoomBtn: $("leaveRoomBtn"), deleteRoomBtn: $("deleteRoomBtn"), memberRoomActions: $("memberRoomActions"),
       memberLeaveRoomBtn: $("memberLeaveRoomBtn"),
       dailyQuestionText: $("dailyQuestionText"), answerDailyBtn: $("answerDailyBtn"), homeGoFeedBtn: $("homeGoFeedBtn"), homeFeedList: $("homeFeedList"),
@@ -1291,11 +1393,17 @@
       memoryFields: $("memoryFields"), memoryTitleInput: $("memoryTitleInput"), memoryTitleOptions: $("memoryTitleOptions"), memoryComposerSuggestions: $("memoryComposerSuggestions"),
       postImageInput: $("postImageInput"), imagePreviewWrap: $("imagePreviewWrap"), imagePreview: $("imagePreview"), clearImageBtn: $("clearImageBtn"), status: $("status"), feedList: $("feedList"),
       profilePanel: $("profilePanel"), guestPanel: $("guestPanel"), sideUsername: $("sideUsername"), sideEmail: $("sideEmail"), sideAvatar: $("sideAvatar"),
-      profileImageInput: $("profileImageInput"), deleteProfileImageBtn: $("deleteProfileImageBtn"), profileStatus: $("profileStatus"), profileFeedList: $("profileFeedList")
+      profileImageInput: $("profileImageInput"), deleteProfileImageBtn: $("deleteProfileImageBtn"), profileStatus: $("profileStatus"), profileFeedList: $("profileFeedList"),
+      desktopSidebar: $("desktopSidebar"), desktopAvatar: $("desktopAvatar"), desktopUsername: $("desktopUsername"), desktopUserRole: $("desktopUserRole"),
+      desktopRoomName: $("desktopRoomName"), desktopRoomCount: $("desktopRoomCount"), desktopRoomRole: $("desktopRoomRole"), desktopAdminBtn: $("desktopAdminBtn"), bottomAdminBtn: $("bottomAdminBtn"),
+      adminRoomCount: $("adminRoomCount"), adminPostCount: $("adminPostCount"), adminCommentCount: $("adminCommentCount"), adminRoomFilter: $("adminRoomFilter"),
+      adminRefreshBtn: $("adminRefreshBtn"), adminRoomList: $("adminRoomList"), adminPostList: $("adminPostList"), appAdminStatus: $("appAdminStatus")
     };
 
     let currentUser = null;
     let currentProfile = null;
+    let currentAppAdmin = false;
+    let pendingInviteCode = (new URLSearchParams(location.search).get("invite") || "").trim();
     let authMode = "login";
     let rooms = [];
     let currentRoomId = null;
@@ -1330,7 +1438,11 @@
     function escapeHtml(value) { return String(value??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
     function todayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
     function getDailyQuestion(){ const seed=Math.floor(Date.now()/86400000); return DAILY_QUESTIONS[Math.abs(seed)%DAILY_QUESTIONS.length]; }
-    function currentRoomIsAdmin(){ return currentRoom?.myRole === "admin"; }
+    function roleLabel(role){ return ({owner:"방장",deputy:"부방장",manager:"운영진",member:"멤버"})[role] || "멤버"; }
+    function currentRoomIsAdmin(){ return currentAppAdmin || ["owner","deputy","manager"].includes(currentRoom?.myRole); }
+    function currentRoomCanSettings(){ return currentAppAdmin || ["owner","deputy"].includes(currentRoom?.myRole); }
+    function currentRoomIsOwner(){ return currentRoom?.myRole === "owner" || currentRoom?.owner_id === currentUser?.id; }
+    function buildInviteLink(code){ const u=new URL(location.href); u.search=""; u.hash=""; u.searchParams.set("invite",code); return u.toString(); }
 
     function setAvatar(box, name, avatarUrl) {
       if (!box) return;
@@ -1370,7 +1482,7 @@
       els.submitAuthBtn.disabled=false;
       if(result.error) return setAuthStatus(result.error.message,true);
       if(authMode==="signup" && !result.data?.session) return setAuthStatus("가입 완료! 이메일 인증이 켜져 있다면 인증 후 로그인하세요.");
-      closeAuth();
+      els.passwordInput.value=""; closeAuth();
     }
     els.submitAuthBtn.addEventListener("click",submitAuth); els.passwordInput.addEventListener("keydown",e=>{if(e.key==="Enter")submitAuth();});
     els.logoutBtn.addEventListener("click",()=>supabase.auth.signOut());
@@ -1387,25 +1499,38 @@
       els.authBtn.hidden=loggedIn; els.logoutBtn.hidden=!loggedIn; els.profilePanel.hidden=!loggedIn; els.guestPanel.hidden=loggedIn;
       els.roomLoggedOut.hidden=loggedIn; els.roomLoggedIn.hidden=!loggedIn;
       els.guestPostName.hidden=loggedIn; els.guestPostPassword.hidden=loggedIn;
+      els.guestPostName.disabled=loggedIn; els.guestPostPassword.disabled=loggedIn;
+      els.guestPostPassword.type=loggedIn?"text":"password"; els.guestPostPassword.autocomplete="one-time-code";
+      els.desktopAdminBtn.hidden=!currentAppAdmin; els.bottomAdminBtn.hidden=!currentAppAdmin;
+      document.querySelector('.bottom-nav').style.gridTemplateColumns=currentAppAdmin?'repeat(6, 1fr)':'repeat(5, 1fr)';
       if(loggedIn){
+        els.passwordInput.value="";
         const name=currentProfile?.username||"user"; els.sideUsername.textContent=name; els.sideEmail.textContent=currentUser.email||"";
-        setAvatar(els.sideAvatar,name,currentProfile?.avatar_url); setAvatar(els.composerAvatar,name,currentProfile?.avatar_url);
-      } else setAvatar(els.composerAvatar,"?",null);
-      updateComposerAvailability();
+        els.desktopUsername.textContent=name; els.desktopUserRole.textContent=currentAppAdmin?"사이트 어드민":"로그인 사용자";
+        setAvatar(els.sideAvatar,name,currentProfile?.avatar_url); setAvatar(els.composerAvatar,name,currentProfile?.avatar_url); setAvatar(els.desktopAvatar,name,currentProfile?.avatar_url);
+      } else {
+        setAvatar(els.composerAvatar,"?",null); setAvatar(els.desktopAvatar,"?",null); els.desktopUsername.textContent="게스트"; els.desktopUserRole.textContent="로그인 전";
+        if(pendingInviteCode) els.roomLoggedOut.textContent=`초대 링크로 들어왔어. 로그인하면 초대코드 ${pendingInviteCode} 방에 바로 참여해.`;
+      }
+      updateComposerAvailability(); renderDesktopRoomSummary();
     }
 
     function openTab(tabName){
+      if(tabName==="admin"&&!currentAppAdmin) return;
       document.querySelectorAll(".app-view").forEach(v=>v.classList.toggle("active",v.id===`view-${tabName}`));
-      document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tabName));
+      document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===tabName));
       window.scrollTo({top:0,behavior:"smooth"});
+      if(tabName==="feed") loadFeed();
+      if(tabName==="profile") loadProfileFeed();
+      if(tabName==="admin") loadAdminDashboard();
     }
-    document.querySelectorAll(".bottom-nav button").forEach(b=>b.addEventListener("click",()=>{openTab(b.dataset.tab);if(b.dataset.tab==="feed")loadFeed();if(b.dataset.tab==="profile")loadProfileFeed();}));
+    document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>openTab(b.dataset.tab)));
 
     // ---------- 친구방 ----------
     async function loadRooms(preferredRoomId=null){
       rooms=[]; currentRoom=null;
       if(!currentUser){ currentRoomId=null; renderRooms(); return; }
-      const {data,error}=await supabase.from("room_members").select(`room_id, role, joined_at, rooms ( id, name, invite_code, owner_id, created_at )`).eq("user_id",currentUser.id).order("joined_at",{ascending:true});
+      const {data,error}=await supabase.from("room_members").select(`room_id, role, joined_at, rooms ( id, name, invite_code, owner_id, max_members, created_at )`).eq("user_id",currentUser.id).order("joined_at",{ascending:true});
       if(error){ console.error(error); setRoomStatus("방 목록 오류: "+error.message,true); renderRooms(); return; }
       rooms=(data||[]).map(r=>({...r.rooms,myRole:r.role})).filter(r=>r.id);
       const saved=preferredRoomId || localStorage.getItem(`minigram-room-${currentUser.id}`);
@@ -1417,18 +1542,28 @@
     }
 
     function renderRooms(){
-      if(!currentUser) return;
+      if(!currentUser){ renderDesktopRoomSummary(); return; }
       els.roomSelect.innerHTML="";
       if(!rooms.length){ const o=document.createElement("option"); o.value=""; o.textContent="아직 참여한 방이 없어"; els.roomSelect.appendChild(o); }
-      else rooms.forEach(r=>{ const o=document.createElement("option"); o.value=r.id; o.textContent=`${r.name}${r.myRole==="admin"?" · 관리자":""}`; o.selected=r.id===currentRoomId; els.roomSelect.appendChild(o); });
+      else rooms.forEach(r=>{ const o=document.createElement("option"); o.value=r.id; o.textContent=`${r.name} · ${roleLabel(r.myRole)}`; o.selected=r.id===currentRoomId; els.roomSelect.appendChild(o); });
       const has=Boolean(currentRoom);
       els.currentRoomArea.hidden=!has;
-      if(!has){ setRoomStatus("방을 만들거나 초대코드로 참여하면 모임 피드가 열려."); updateComposerAvailability(); return; }
-      els.currentRoomName.textContent=currentRoom.name; els.currentInviteCode.textContent=currentRoom.invite_code; els.adminRoomName.value=currentRoom.name;
-      els.adminPanel.hidden=!currentRoomIsAdmin(); els.memberRoomActions.hidden=currentRoomIsAdmin();
-      const isOwner=currentRoom.owner_id===currentUser.id;
-      els.leaveRoomBtn.hidden=isOwner; els.deleteRoomBtn.hidden=!isOwner;
-      updateComposerAvailability();
+      if(!has){ setRoomStatus("방을 만들거나 초대코드로 참여하면 모임 피드가 열려."); updateComposerAvailability(); renderDesktopRoomSummary(); return; }
+      const link=buildInviteLink(currentRoom.invite_code);
+      els.currentRoomName.textContent=currentRoom.name; els.currentInviteCode.textContent=currentRoom.invite_code; els.currentInviteLink.textContent=link;
+      els.adminRoomName.value=currentRoom.name; els.adminMaxMembers.value=currentRoom.max_members||30;
+      els.adminPanel.hidden=!currentRoomCanSettings();
+      els.memberRoomActions.hidden=currentRoomCanSettings();
+      els.leaveRoomBtn.hidden=currentRoomIsOwner(); els.deleteRoomBtn.hidden=!currentRoomIsOwner()&&!currentAppAdmin;
+      updateComposerAvailability(); renderDesktopRoomSummary();
+    }
+
+    function renderDesktopRoomSummary(){
+      if(!currentUser){ els.desktopRoomName.textContent="선택된 방 없음"; els.desktopRoomCount.textContent="0명"; els.desktopRoomRole.textContent="-"; return; }
+      if(!currentRoom){ els.desktopRoomName.textContent="참여한 방 없음"; els.desktopRoomCount.textContent="0명"; els.desktopRoomRole.textContent=currentAppAdmin?"사이트 어드민":"-"; return; }
+      els.desktopRoomName.textContent=currentRoom.name;
+      els.desktopRoomCount.textContent=`${roomMembers.length} / ${currentRoom.max_members||30}명`;
+      els.desktopRoomRole.textContent=`내 등급: ${roleLabel(currentRoom.myRole)}`;
     }
 
     els.roomSelect.addEventListener("change",async()=>{
@@ -1438,22 +1573,28 @@
     });
 
     els.roomCreateBtn.addEventListener("click",async()=>{
-      const name=els.roomCreateName.value.trim(); if(name.length<2) return setRoomStatus("방 이름을 2자 이상 입력해줘.",true);
+      const name=els.roomCreateName.value.trim(), maxMembers=Number(els.roomCreateMax.value||30); if(name.length<2) return setRoomStatus("방 이름을 2자 이상 입력해줘.",true);
+      if(!Number.isInteger(maxMembers)||maxMembers<2||maxMembers>200) return setRoomStatus("최대 인원은 2~200명으로 정해줘.",true);
       els.roomCreateBtn.disabled=true; setRoomStatus("방 만드는 중...");
-      const {data,error}=await supabase.rpc("create_room",{p_name:name}); els.roomCreateBtn.disabled=false;
+      const {data,error}=await supabase.rpc("create_room_with_limit",{p_name:name,p_max_members:maxMembers}); els.roomCreateBtn.disabled=false;
       if(error) return setRoomStatus("방 생성 오류: "+error.message,true);
-      const id=Array.isArray(data)?data[0]?.room_id:null; els.roomCreateName.value=""; await loadRooms(id); await loadFeed(); await loadCapsules(); await loadProfileFeed(); setRoomStatus("방을 만들었어. 초대코드를 친구에게 공유해줘.");
+      const id=Array.isArray(data)?data[0]?.room_id:null; els.roomCreateName.value=""; els.roomCreateMax.value="30"; await loadRooms(id); await loadFeed(); await loadCapsules(); await loadProfileFeed(); setRoomStatus("방을 만들었어. 초대링크를 친구에게 공유해줘.");
     });
 
-    els.roomJoinBtn.addEventListener("click",async()=>{
-      const code=els.roomJoinCode.value.trim(); if(!code) return setRoomStatus("초대코드를 입력해줘.",true);
-      els.roomJoinBtn.disabled=true; setRoomStatus("방 참여 중..."); const {data,error}=await supabase.rpc("join_room",{p_invite_code:code}); els.roomJoinBtn.disabled=false;
-      if(error) return setRoomStatus("참여 오류: "+error.message,true);
-      els.roomJoinCode.value=""; await loadRooms(data); await loadFeed(); await loadCapsules(); await loadProfileFeed(); setRoomStatus("방에 참여했어.");
-    });
+    async function joinRoomByCode(code,{fromInvite=false}={}){
+      code=(code||"").trim(); if(!code) return setRoomStatus("초대코드를 입력해줘.",true);
+      els.roomJoinBtn.disabled=true; setRoomStatus("방 참여 중...");
+      const {data,error}=await supabase.rpc("join_room",{p_invite_code:code}); els.roomJoinBtn.disabled=false;
+      if(error){ setRoomStatus("참여 오류: "+error.message,true); return null; }
+      els.roomJoinCode.value=""; await loadRooms(data); await loadFeed(); await loadCapsules(); await loadProfileFeed();
+      setRoomStatus(fromInvite?"초대 링크로 방에 참여했어.":"방에 참여했어."); return data;
+    }
+    els.roomJoinBtn.addEventListener("click",()=>joinRoomByCode(els.roomJoinCode.value));
 
     els.copyInviteBtn.addEventListener("click",async()=>{
-      if(!currentRoom) return; try{ await navigator.clipboard.writeText(currentRoom.invite_code); setRoomStatus("초대코드를 복사했어."); }catch{ setRoomStatus(`초대코드: ${currentRoom.invite_code}`); }
+      if(!currentRoom) return; const link=buildInviteLink(currentRoom.invite_code);
+      try{ await navigator.clipboard.writeText(link); setRoomStatus("초대코드가 포함된 링크를 복사했어."); }
+      catch{ setRoomStatus(`초대링크: ${link}`); }
     });
 
     async function loadRoomMembers(){
@@ -1461,6 +1602,7 @@
       const {data,error}=await supabase.from("room_members").select(`user_id, role, joined_at, profiles ( username, avatar_url )`).eq("room_id",currentRoomId).order("joined_at",{ascending:true});
       if(error){ console.error(error); els.roomMemberList.textContent="멤버 목록 오류"; return; }
       roomMembers=data||[]; renderRoomMembers();
+      els.roomMemberCount.textContent=`${roomMembers.length} / ${currentRoom?.max_members||30}`; renderDesktopRoomSummary();
     }
 
     function renderRoomMembers(){
@@ -1470,18 +1612,19 @@
         const av=document.createElement("div"); av.className="avatar"; setAvatar(av,m.profiles?.username||"user",m.profiles?.avatar_url);
         const info=document.createElement("div"); info.className="member-info";
         const n=document.createElement("strong"); n.textContent=(m.profiles?.username||"user")+(m.user_id===currentUser.id?" (나)":"");
-        const role=document.createElement("span"); role.textContent=m.user_id===currentRoom?.owner_id?"방장 · 관리자":(m.role==="admin"?"관리자":"멤버"); info.append(n,role); row.append(av,info);
-        if(currentRoomIsAdmin() && m.user_id!==currentRoom?.owner_id){
-          const acts=document.createElement("div"); acts.className="member-actions";
-          if(currentRoom?.owner_id===currentUser.id){
-            const roleBtn=document.createElement("button"); roleBtn.className="tiny-btn"; roleBtn.textContent=m.role==="admin"?"관리자 해제":"관리자 지정";
-            roleBtn.addEventListener("click",()=>changeMemberRole(m.user_id,m.role==="admin"?"member":"admin")); acts.appendChild(roleBtn);
-          }
-          if(m.role!=="admin" || currentRoom?.owner_id===currentUser.id){
-            const rm=document.createElement("button"); rm.className="tiny-btn danger"; rm.textContent="내보내기"; rm.addEventListener("click",()=>removeMember(m.user_id,m.profiles?.username||"멤버")); acts.appendChild(rm);
-          }
-          row.appendChild(acts);
+        const role=document.createElement("span"); role.textContent=roleLabel(m.role); info.append(n,role); row.append(av,info);
+        const acts=document.createElement("div"); acts.className="member-actions";
+        if(currentRoomIsOwner() && m.user_id!==currentRoom?.owner_id){
+          const select=document.createElement("select"); select.className="member-role-select";
+          [["deputy","부방장"],["manager","운영진"],["member","멤버"]].forEach(([v,t])=>{const o=document.createElement("option");o.value=v;o.textContent=t;o.selected=m.role===v;select.appendChild(o);});
+          select.addEventListener("change",()=>changeMemberRole(m.user_id,select.value)); acts.appendChild(select);
+          const ownerBtn=document.createElement("button"); ownerBtn.className="tiny-btn"; ownerBtn.textContent="방장 위임"; ownerBtn.addEventListener("click",()=>transferOwner(m.user_id,m.profiles?.username||"멤버")); acts.appendChild(ownerBtn);
         }
+        const actor=currentRoom?.myRole, canRemove=currentAppAdmin || (actor==="owner"&&m.user_id!==currentRoom?.owner_id) || (actor==="deputy"&&["manager","member"].includes(m.role)) || (actor==="manager"&&m.role==="member");
+        if(canRemove && m.user_id!==currentUser.id && m.user_id!==currentRoom?.owner_id){
+          const rm=document.createElement("button"); rm.className="tiny-btn danger"; rm.textContent="내보내기"; rm.addEventListener("click",()=>removeMember(m.user_id,m.profiles?.username||"멤버")); acts.appendChild(rm);
+        }
+        if(acts.children.length) row.appendChild(acts);
         els.roomMemberList.appendChild(row);
       }
     }
@@ -1489,6 +1632,12 @@
     async function changeMemberRole(userId,role){
       const {data,error}=await supabase.rpc("set_room_member_role",{p_room_id:currentRoomId,p_user_id:userId,p_role:role});
       if(error||data!==true) return setRoomStatus("권한 변경에 실패했어."+(error?" "+error.message:""),true); await loadRoomMembers(); setRoomStatus("멤버 권한을 변경했어.");
+    }
+    async function transferOwner(userId,name){
+      if(!confirm(`${name}님에게 방장을 위임할까요? 위임 후 나는 일반 멤버가 돼.`)) return;
+      const {data,error}=await supabase.rpc("transfer_room_owner",{p_room_id:currentRoomId,p_user_id:userId});
+      if(error||data!==true) return setRoomStatus("방장 위임에 실패했어."+(error?" "+error.message:""),true);
+      await loadRooms(currentRoomId); setRoomStatus("방장을 위임했어.");
     }
     async function removeMember(userId,name){
       if(!confirm(`${name}님을 이 방에서 내보낼까요?`)) return;
@@ -1500,6 +1649,13 @@
       if(!currentRoomId) return; const name=els.adminRoomName.value.trim();
       const {data,error}=await supabase.rpc("update_room_name",{p_room_id:currentRoomId,p_name:name});
       if(error||data!==true) return setRoomStatus("방 이름 변경 실패: "+(error?.message||"권한 없음"),true); await loadRooms(currentRoomId); setRoomStatus("방 이름을 바꿨어.");
+    });
+    els.saveRoomSettingsBtn.addEventListener("click",async()=>{
+      if(!currentRoomId) return; const name=els.adminRoomName.value.trim(), maxMembers=Number(els.adminMaxMembers.value);
+      if(!Number.isInteger(maxMembers)||maxMembers<2||maxMembers>200) return setRoomStatus("최대 인원은 2~200명으로 입력해줘.",true);
+      const {data,error}=await supabase.rpc("update_room_settings",{p_room_id:currentRoomId,p_name:name,p_max_members:maxMembers});
+      if(error||data!==true) return setRoomStatus("방 설정 저장 실패: "+(error?.message||"권한 없음"),true);
+      await loadRooms(currentRoomId); await loadRoomMembers(); setRoomStatus("방 이름과 최대 인원을 저장했어.");
     });
     els.regenInviteBtn.addEventListener("click",async()=>{
       if(!confirm("기존 초대코드는 더 이상 사용할 수 없게 돼. 새로 발급할까?")) return;
@@ -1661,7 +1817,7 @@
 
     // ---------- 피드 렌더 ----------
     async function renderPostCard(post){
-      const isGuest=!post.user_id, username=isGuest?(post.guest_name||"익명"):(post.profiles?.username||"user"), mine=Boolean(currentUser&&post.user_id===currentUser.id), admin=Boolean(currentUser&&post.room_id&&currentRoomIsAdmin());
+      const isGuest=!post.user_id, username=isGuest?(post.guest_name||"익명"):(post.profiles?.username||"user"), mine=Boolean(currentUser&&post.user_id===currentUser.id), admin=Boolean(currentAppAdmin || (currentUser&&post.room_id===currentRoomId&&currentRoomIsAdmin()));
       const article=document.createElement("article");article.className="card feed-card";
       const head=document.createElement("div");head.className="post-head";const av=document.createElement("div");av.className="avatar";setAvatar(av,username,post.profiles?.avatar_url);
       const who=document.createElement("div");who.className="who";const name=document.createElement("div");name.className="username";name.append(document.createTextNode(username));
@@ -1680,7 +1836,7 @@
         const textField=document.createElement("div");textField.className="comment-field";const tb=document.createElement("b");tb.textContent="댓글:";const tv=document.createElement("span");tv.textContent=c.content;textField.append(tb,tv);row.append(nameField,textField);
         const meta=document.createElement("div");meta.className="comment-meta-row";const tm=document.createElement("span");tm.className="comment-time";tm.textContent=formatDate(c.created_at);meta.appendChild(tm);
         const mineC=Boolean(currentUser&&c.user_id===currentUser.id), guestC=!c.user_id;if(mineC||guestC){const e=document.createElement("button");e.className="comment-edit-btn";e.textContent="수정";e.addEventListener("click",()=>editComment(c));meta.appendChild(e);}if(mineC||guestC||admin){const d=document.createElement("button");d.className="comment-delete-btn";d.textContent=admin&&!mineC&&!guestC?"관리자 삭제":"삭제";d.addEventListener("click",()=>deleteComment(c));meta.appendChild(d);}row.appendChild(meta);list.appendChild(row);}
-      const form=document.createElement("div");form.className="comment-form";let nameInput=null,pwInput=null;if(!currentUser){const creds=document.createElement("div");creds.className="comment-guest-credentials";nameInput=document.createElement("input");nameInput.className="comment-name";nameInput.placeholder="닉네임";nameInput.maxLength=20;pwInput=document.createElement("input");pwInput.className="comment-password";pwInput.type="password";pwInput.placeholder="비밀번호";pwInput.maxLength=50;creds.append(nameInput,pwInput);form.appendChild(creds);}
+      const form=document.createElement("div");form.className="comment-form";let nameInput=null,pwInput=null;if(!currentUser){const creds=document.createElement("div");creds.className="comment-guest-credentials";nameInput=document.createElement("input");nameInput.className="comment-name";nameInput.placeholder="닉네임";nameInput.maxLength=20;pwInput=document.createElement("input");pwInput.className="comment-password";pwInput.type="password";pwInput.placeholder="비로그인 수정용 비밀번호";pwInput.maxLength=50;pwInput.autocomplete="one-time-code";pwInput.name="guest-comment-edit-code";pwInput.setAttribute("data-lpignore","true");pwInput.setAttribute("data-1p-ignore","true");creds.append(nameInput,pwInput);form.appendChild(creds);}
       const input=document.createElement("input");input.className="comment-input";input.maxLength=300;input.placeholder="댓글 달기...";const btn=document.createElement("button");btn.className="comment-btn";btn.textContent="게시";const submit=()=>createComment(post.id,input,nameInput,pwInput);btn.addEventListener("click",submit);input.addEventListener("keydown",e=>{if(e.key==="Enter")submit();});const wr=document.createElement("div");wr.className="comment-write-row";wr.append(input,btn);form.appendChild(wr);commentsBox.append(list,form);article.appendChild(commentsBox);return article;
     }
 
@@ -1731,18 +1887,96 @@
       }
     }
 
+    // ---------- 사이트 전체 어드민 ----------
+    function setAppAdminStatus(message="",isError=false){ els.appAdminStatus.textContent=message; els.appAdminStatus.className=isError?"status error":"status"; }
+    async function fetchAllAdminRooms(){
+      const all=[]; const batch=500;
+      for(let from=0;;from+=batch){
+        const {data,error}=await supabase.from("rooms").select("id,name,invite_code,owner_id,max_members,created_at,room_members(user_id,role)").order("created_at",{ascending:false}).range(from,from+batch-1);
+        if(error) throw error; all.push(...(data||[])); if((data||[]).length<batch) break;
+      }
+      return all;
+    }
+    async function fetchAllAdminPosts(){
+      const all=[]; const batch=300;
+      for(let from=0;;from+=batch){
+        const {data,error}=await supabase.from("posts").select(`id,content,image_url,post_type,unlock_at,memory_title,capsule_title,room_id,created_at,user_id,guest_name,rooms(name),profiles(username,avatar_url),comments(id,content,created_at,user_id,guest_name,profiles(username))`).order("created_at",{ascending:false}).range(from,from+batch-1);
+        if(error) throw error; all.push(...(data||[])); if((data||[]).length<batch) break;
+      }
+      return all;
+    }
+    async function loadAdminDashboard(){
+      if(!currentAppAdmin){ return; }
+      setAppAdminStatus("전체 데이터를 불러오는 중..."); let roomRows=[],postRows=[];
+      try{[roomRows,postRows]=await Promise.all([fetchAllAdminRooms(),fetchAllAdminPosts()]);}
+      catch(e){setAppAdminStatus("어드민 조회 오류: "+e.message,true);return;}
+      const commentTotal=postRows.reduce((n,p)=>n+(p.comments?.length||0),0);
+      els.adminRoomCount.textContent=String(roomRows.length); els.adminPostCount.textContent=String(postRows.length); els.adminCommentCount.textContent=String(commentTotal);
+      const selected=els.adminRoomFilter.value; els.adminRoomFilter.innerHTML='<option value="">모든 방</option>';
+      for(const r of roomRows){const o=document.createElement("option");o.value=r.id;o.textContent=`${r.name} (${r.room_members?.length||0}/${r.max_members||30})`;o.selected=r.id===selected;els.adminRoomFilter.appendChild(o);}
+      els.adminRoomList.innerHTML="";
+      for(const r of roomRows){const card=document.createElement("div");card.className="admin-room-card";const st=document.createElement("strong");st.textContent=r.name;const sm=document.createElement("span");sm.textContent=`인원 ${r.room_members?.length||0}/${r.max_members||30} · 초대코드 ${r.invite_code}`;const acts=document.createElement("div");acts.className="admin-row";const del=document.createElement("button");del.className="tiny-btn danger";del.textContent="방 삭제";del.addEventListener("click",()=>appAdminDeleteRoom(r));acts.appendChild(del);card.append(st,sm,acts);els.adminRoomList.appendChild(card);}
+      await renderAdminPosts(postRows);
+      setAppAdminStatus("어드민 데이터 최신화 완료.");
+    }
+    async function renderAdminPosts(posts){
+      const roomFilter=els.adminRoomFilter.value; const rows=roomFilter?posts.filter(p=>p.room_id===roomFilter):posts; els.adminPostList.innerHTML="";
+      if(!rows.length){els.adminPostList.innerHTML='<div class="empty-small">표시할 글이 없어.</div>';return;}
+      for(const p of rows){
+        const card=document.createElement("div");card.className="admin-post-card";const who=p.profiles?.username||p.guest_name||"익명";const meta=document.createElement("div");meta.className="admin-post-meta";meta.textContent=`#${p.id} · ${p.rooms?.name||"레거시 공개"} · ${who} · ${p.post_type||"normal"} · ${formatDate(p.created_at)}`;card.appendChild(meta);
+        const body=document.createElement("div");body.className="admin-post-body";body.textContent=p.content||((p.post_type==="capsule"&&p.unlock_at&&new Date(p.unlock_at)>new Date())?"🔒 잠긴 타임캡슐":"(내용 없음)");card.appendChild(body);
+        const actions=document.createElement("div");actions.className="admin-row";const del=document.createElement("button");del.className="delete-btn";del.textContent="글 삭제";del.addEventListener("click",()=>appAdminDeletePost(p));actions.appendChild(del);card.appendChild(actions);
+        const comments=document.createElement("div");comments.className="admin-comments";for(const c of p.comments||[]){const row=document.createElement("div");row.className="admin-comment-row";const txt=document.createElement("span");txt.textContent=`${c.profiles?.username||c.guest_name||"익명"}: ${c.content}`;const d=document.createElement("button");d.className="tiny-btn danger";d.textContent="댓글 삭제";d.addEventListener("click",()=>appAdminDeleteComment(c.id));row.append(txt,d);comments.appendChild(row);}if(comments.children.length)card.appendChild(comments);els.adminPostList.appendChild(card);
+      }
+    }
+    async function appAdminDeleteRoom(room){
+      if(!confirm(`어드민 권한으로 '${room.name}' 방과 방 안의 모든 글을 삭제할까요? 되돌릴 수 없어.`))return;
+      setAppAdminStatus("방 사진을 정리하는 중...");
+      if(!(await cleanupRoomStorage(room.id))) return setAppAdminStatus("방 이미지 정리에 실패했어.",true);
+      const {data,error}=await supabase.rpc("delete_room",{p_room_id:room.id});
+      if(error||data!==true)return setAppAdminStatus("방 삭제 실패: "+(error?.message||"권한 오류"),true);
+      if(currentRoomId===room.id){localStorage.removeItem(`minigram-room-${currentUser.id}`);await loadRooms();await loadFeed();await loadCapsules();}
+      await loadAdminDashboard();
+    }
+    async function appAdminDeletePost(post){if(!confirm("어드민 권한으로 이 글을 삭제할까요?"))return;const {data,error}=await supabase.rpc("app_admin_delete_post",{p_post_id:post.id});if(error||data?.success!==true)return setAppAdminStatus("글 삭제 실패: "+(error?.message||"권한 오류"),true);if(data.image_url)await deleteStoredImage(data.image_url);await loadAdminDashboard();if(currentRoomId)await loadFeed();}
+    async function appAdminDeleteComment(commentId){if(!confirm("어드민 권한으로 이 댓글을 삭제할까요?"))return;const {data,error}=await supabase.rpc("app_admin_delete_comment",{p_comment_id:commentId});if(error||data!==true)return setAppAdminStatus("댓글 삭제 실패: "+(error?.message||"권한 오류"),true);await loadAdminDashboard();if(currentRoomId)await loadFeed();}
+    els.adminRefreshBtn.addEventListener("click",loadAdminDashboard);
+    els.adminRoomFilter.addEventListener("change",loadAdminDashboard);
+
     // ---------- 프로필 사진 ----------
     async function deleteProfileStorage(url){const path=publicStoragePath(url,"profile-images");if(path)await supabase.storage.from("profile-images").remove([path]);}
+    async function cropAvatarFile(file){
+      let source=null, width=0, height=0, revoke="";
+      if("createImageBitmap" in window){source=await createImageBitmap(file);width=source.width;height=source.height;}
+      else {revoke=URL.createObjectURL(file);source=await new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("이미지를 읽지 못했어."));img.src=revoke;});width=source.naturalWidth;height=source.naturalHeight;}
+      const side=Math.min(width,height), sx=Math.floor((width-side)/2), sy=Math.floor((height-side)/2);
+      const canvas=document.createElement("canvas"); canvas.width=512; canvas.height=512; const ctx=canvas.getContext("2d");
+      ctx.drawImage(source,sx,sy,side,side,0,0,512,512); source.close?.(); if(revoke)URL.revokeObjectURL(revoke);
+      const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("프로필 이미지 변환 실패")),"image/webp",0.88));
+      return blob;
+    }
     els.profileImageInput.addEventListener("change",async()=>{
-      const file=els.profileImageInput.files?.[0];els.profileImageInput.value="";if(!file||!currentUser)return;if(!file.type.startsWith("image/"))return setProfileStatus("이미지 파일만 선택해줘.",true);if(file.size>MAX_IMAGE_BYTES)return setProfileStatus("프로필 사진은 5MB 이하만 가능해.",true);
-      setProfileStatus("프로필 사진 업로드 중...");const ext=safeFileExtension(file),path=`users/${currentUser.id}/avatar-${Date.now()}.${ext}`;const {error:upError}=await supabase.storage.from("profile-images").upload(path,file,{upsert:false,contentType:file.type});if(upError)return setProfileStatus("업로드 오류: "+upError.message,true);const url=supabase.storage.from("profile-images").getPublicUrl(path).data.publicUrl;const old=currentProfile?.avatar_url;const {error}=await supabase.from("profiles").update({avatar_url:url}).eq("id",currentUser.id);if(error){await supabase.storage.from("profile-images").remove([path]);return setProfileStatus("프로필 저장 오류: "+error.message,true);}if(old)await deleteProfileStorage(old);await loadMyProfile();renderSession();await loadRoomMembers();await loadFeed();await loadProfileFeed();setProfileStatus("프로필 사진을 바꿨어.");
+      const file=els.profileImageInput.files?.[0];els.profileImageInput.value="";if(!file||!currentUser)return;if(!file.type.startsWith("image/"))return setProfileStatus("이미지 파일만 선택해줘.",true);if(file.size>MAX_IMAGE_BYTES)return setProfileStatus("프로필 원본 사진은 5MB 이하만 가능해.",true);
+      setProfileStatus("정사각형 프로필 사진으로 맞추는 중..."); let cropped; try{cropped=await cropAvatarFile(file);}catch(e){return setProfileStatus("프로필 사진 처리 오류: "+e.message,true);}
+      const path=`users/${currentUser.id}/avatar-${Date.now()}.webp`;const {error:upError}=await supabase.storage.from("profile-images").upload(path,cropped,{upsert:false,contentType:"image/webp"});if(upError)return setProfileStatus("업로드 오류: "+upError.message,true);const url=supabase.storage.from("profile-images").getPublicUrl(path).data.publicUrl;const old=currentProfile?.avatar_url;const {error}=await supabase.from("profiles").update({avatar_url:url}).eq("id",currentUser.id);if(error){await supabase.storage.from("profile-images").remove([path]);return setProfileStatus("프로필 저장 오류: "+error.message,true);}if(old)await deleteProfileStorage(old);await loadMyProfile();renderSession();await loadRoomMembers();await loadFeed();await loadProfileFeed();setProfileStatus("프로필 사진을 512×512 규격으로 맞춰 저장했어.");
     });
     els.deleteProfileImageBtn.addEventListener("click",async()=>{if(!currentUser||!currentProfile?.avatar_url)return setProfileStatus("삭제할 프로필 사진이 없어.");if(!confirm("프로필 사진을 삭제할까요?"))return;const old=currentProfile.avatar_url;const {error}=await supabase.from("profiles").update({avatar_url:null}).eq("id",currentUser.id);if(error)return setProfileStatus("삭제 오류: "+error.message,true);await deleteProfileStorage(old);await loadMyProfile();renderSession();await loadRoomMembers();await loadFeed();await loadProfileFeed();setProfileStatus("프로필 사진을 삭제했어.");});
 
     // ---------- 초기화 ----------
     renderDailyQuestion(); setComposerMode("normal");
-    async function refreshSession(session){currentUser=session?.user||null;await loadMyProfile();renderSession();await loadRooms();await loadFeed();await loadCapsules();await loadProfileFeed();}
+    async function refreshSession(session){
+      currentUser=session?.user||null; await loadMyProfile(); currentAppAdmin=false;
+      if(currentUser){ const {data,error}=await supabase.rpc("is_app_admin"); if(!error) currentAppAdmin=data===true; }
+      renderSession(); let preferred=null;
+      if(currentUser&&pendingInviteCode){
+        const code=pendingInviteCode; pendingInviteCode=""; els.roomJoinCode.value=code;
+        const {data,error}=await supabase.rpc("join_room",{p_invite_code:code});
+        if(error) setRoomStatus("초대링크 참여 오류: "+error.message,true); else {preferred=data;setRoomStatus("초대 링크로 방에 참여했어.");const u=new URL(location.href);u.searchParams.delete("invite");history.replaceState({},"",u.pathname+u.search+u.hash);}
+      }
+      await loadRooms(preferred); await loadFeed(); await loadCapsules(); await loadProfileFeed(); if(currentAppAdmin) await loadAdminDashboard();
+    }
     const {data:sessionData}=await supabase.auth.getSession();await refreshSession(sessionData.session);
+    if(pendingInviteCode&&!sessionData.session){ openAuth("login"); els.modalSub.textContent=`초대코드 ${pendingInviteCode} 방에 참여하려면 로그인해줘.`; }
     supabase.auth.onAuthStateChange((_event,session)=>setTimeout(()=>refreshSession(session),0));
   </script>
 </body>

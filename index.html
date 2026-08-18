@@ -600,6 +600,205 @@
       .comment-write-row { width: 100%; }
       .primary-btn { padding-left: 12px; padding-right: 12px; }
     }
+
+    .memory-dashboard {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .memory-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .memory-card h2,
+    .memory-card h3 {
+      margin: 0;
+      letter-spacing: -.4px;
+    }
+
+    .memory-card .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .daily-question {
+      grid-column: 1 / -1;
+      background:
+        radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 18%, transparent), transparent 40%),
+        var(--surface);
+    }
+
+    .daily-question h2 {
+      font-size: 22px;
+      line-height: 1.35;
+      margin-bottom: 14px;
+    }
+
+    .memory-card-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .soft-btn {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .capsule-countdown {
+      font-size: 26px;
+      font-weight: 850;
+      margin: 10px 0 4px;
+    }
+
+    .memory-return-preview {
+      min-height: 70px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+
+    .composer-mode-tabs {
+      display: flex;
+      gap: 6px;
+      padding: 4px;
+      margin-bottom: 12px;
+      border-radius: 11px;
+      background: var(--surface-2);
+      overflow-x: auto;
+    }
+
+    .composer-mode-tabs button {
+      flex: 1;
+      min-width: 88px;
+      border: 0;
+      border-radius: 8px;
+      padding: 9px 10px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .composer-mode-tabs button.active {
+      color: var(--text);
+      background: var(--surface);
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    }
+
+    .special-fields {
+      display: none;
+      gap: 8px;
+      margin: 10px 0 0;
+      flex-wrap: wrap;
+    }
+
+    .special-fields.show { display: flex; }
+
+    .special-fields input,
+    .special-fields select {
+      flex: 1;
+      min-width: 150px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 10px 11px;
+      outline: none;
+    }
+
+    .post-type-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 7px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      background: var(--surface-2);
+      color: var(--muted);
+      vertical-align: 1px;
+    }
+
+    .post-type-badge.capsule {
+      color: #8b5cf6;
+    }
+
+    .post-type-badge.daily {
+      color: var(--accent);
+    }
+
+    .post-type-badge.memory {
+      color: #e8792f;
+    }
+
+    .locked-post {
+      padding: 28px 18px;
+      text-align: center;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .locked-post strong {
+      display: block;
+      color: var(--text);
+      font-size: 18px;
+      margin-bottom: 7px;
+    }
+
+    .memory-album-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 0 0 2px;
+      scrollbar-width: thin;
+    }
+
+    .memory-chip {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 8px 11px;
+      border-radius: 999px;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .memory-chip.active {
+      background: var(--text);
+      color: var(--surface);
+    }
+
+    @media (max-width: 700px) {
+      .memory-dashboard {
+        grid-template-columns: 1fr;
+        margin: 0 10px 12px;
+      }
+      .daily-question { grid-column: auto; }
+      .memory-card { border-radius: 12px; }
+    }
+
   </style>
 </head>
 <body>
@@ -616,7 +815,53 @@
 
   <main class="layout">
     <section class="feed">
+
+      <section class="memory-dashboard">
+        <article class="memory-card daily-question">
+          <div class="eyebrow">🔥 오늘의 질문</div>
+          <h2 id="dailyQuestionText">오늘 우리끼리 남길 질문을 불러오는 중...</h2>
+          <div class="memory-card-actions">
+            <button id="answerDailyBtn" class="primary-btn">답변 남기기</button>
+            <span id="dailyAnswerHint" class="hint" style="margin:0">답변은 피드에 오늘의 기록으로 남아요.</span>
+          </div>
+        </article>
+
+        <article class="memory-card">
+          <div class="eyebrow">⏳ 타임캡슐</div>
+          <h3>미래의 우리에게 보내기</h3>
+          <div id="nextCapsuleCountdown" class="capsule-countdown">아직 없음</div>
+          <div id="nextCapsuleText" class="hint">열릴 타임캡슐을 만들어봐.</div>
+          <div class="memory-card-actions">
+            <button id="makeCapsuleBtn" class="soft-btn">타임캡슐 쓰기</button>
+          </div>
+        </article>
+
+        <article class="memory-card">
+          <div class="eyebrow">🕰 추억 리턴</div>
+          <h3>예전의 우리</h3>
+          <div id="memoryReturnPreview" class="memory-return-preview">예전 글을 찾는 중...</div>
+          <div class="memory-card-actions">
+            <button id="refreshMemoryBtn" class="soft-btn">다른 추억 보기</button>
+          </div>
+        </article>
+
+        <article class="memory-card" style="grid-column:1/-1">
+          <div class="eyebrow">📸 우리 추억 폴더</div>
+          <h3 style="margin-bottom:12px">같은 이름을 붙이면 공동 앨범처럼 모여요.</h3>
+          <div id="memoryAlbumStrip" class="memory-album-strip">
+            <button class="memory-chip active" data-memory-filter="">전체</button>
+          </div>
+        </article>
+      </section>
+
       <section id="composerCard" class="card composer">
+
+        <div class="composer-mode-tabs">
+          <button class="active" data-mode="normal">💬 일반</button>
+          <button data-mode="daily">🔥 오늘답변</button>
+          <button data-mode="capsule">⏳ 타임캡슐</button>
+          <button data-mode="memory">📸 공동추억</button>
+        </div>
         <div class="composer-row">
           <div class="avatar"><span id="composerAvatar">?</span></div>
           <input id="guestPostName" class="guest-name-input" maxlength="20"
@@ -627,6 +872,16 @@
                  placeholder="로그인 없이도 글을 남길 수 있어요" />
           <button id="postBtn" class="primary-btn">게시</button>
         </div>
+
+        <div id="capsuleFields" class="special-fields">
+          <input id="capsuleUnlockAt" type="datetime-local" aria-label="타임캡슐 공개 시간" />
+          <span class="hint" style="margin:auto 0">이 시간이 지나면 모두에게 보여요.</span>
+        </div>
+
+        <div id="memoryFields" class="special-fields">
+          <input id="memoryTitleInput" maxlength="40" placeholder="추억 이름 (예: 대부도 2026)" />
+        </div>
+
         <div class="image-picker-row">
           <label class="image-label">
             📷 사진 추가
@@ -713,6 +968,18 @@
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     const els = {
+      dailyQuestionText: document.getElementById("dailyQuestionText"),
+      answerDailyBtn: document.getElementById("answerDailyBtn"),
+      makeCapsuleBtn: document.getElementById("makeCapsuleBtn"),
+      nextCapsuleCountdown: document.getElementById("nextCapsuleCountdown"),
+      nextCapsuleText: document.getElementById("nextCapsuleText"),
+      memoryReturnPreview: document.getElementById("memoryReturnPreview"),
+      refreshMemoryBtn: document.getElementById("refreshMemoryBtn"),
+      memoryAlbumStrip: document.getElementById("memoryAlbumStrip"),
+      capsuleFields: document.getElementById("capsuleFields"),
+      capsuleUnlockAt: document.getElementById("capsuleUnlockAt"),
+      memoryFields: document.getElementById("memoryFields"),
+      memoryTitleInput: document.getElementById("memoryTitleInput"),
       themeBtn: document.getElementById("themeBtn"),
       authBtn: document.getElementById("authBtn"),
       logoutBtn: document.getElementById("logoutBtn"),
@@ -750,6 +1017,27 @@
     let currentUser = null;
     let currentProfile = null;
     let authMode = "login";
+    let composerMode = "normal";
+    let activeMemoryFilter = "";
+    let memoryReturnPool = [];
+    let memoryReturnIndex = 0;
+
+    const DAILY_QUESTIONS = [
+      "오늘 제일 어이없었던 일은?",
+      "우리 중 오늘 가장 먼저 생각난 사람은?",
+      "최근에 혼자 웃었던 순간은?",
+      "오늘 사진 딱 한 장만 남긴다면?",
+      "올해 우리끼리 꼭 하고 싶은 일은?",
+      "지금 다시 가고 싶은 여행지는?",
+      "최근 제일 맛있었던 음식은?",
+      "요즘 우리 단톡방에서 제일 웃긴 사람은?",
+      "오늘의 TMI 하나만 풀어봐.",
+      "지금의 우리에게 1년 뒤 하고 싶은 말은?",
+      "최근 가장 많이 들은 노래는?",
+      "우리끼리만 아는 레전드 사건 하나?",
+      "오늘 기분을 이모지 세 개로 표현하면?",
+      "다음 모임에서 꼭 하고 싶은 것은?"
+    ];
 
     function setStatus(message = "", isError = false) {
       els.status.textContent = message;
@@ -954,6 +1242,126 @@
       }
     }
 
+
+    // ---------- MiniGram Memories v5 ----------
+    function todayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+
+    function getDailyQuestion() {
+      const d = new Date();
+      const seed = Math.floor(d.getTime() / 86400000);
+      return DAILY_QUESTIONS[Math.abs(seed) % DAILY_QUESTIONS.length];
+    }
+
+    function renderDailyQuestion() {
+      els.dailyQuestionText.textContent = getDailyQuestion();
+    }
+
+    function setComposerMode(mode) {
+      composerMode = mode;
+      document.querySelectorAll(".composer-mode-tabs button").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.mode === mode);
+      });
+      els.capsuleFields.classList.toggle("show", mode === "capsule");
+      els.memoryFields.classList.toggle("show", mode === "memory");
+
+      if (mode === "daily") {
+        els.postInput.placeholder = "오늘의 질문에 답해봐...";
+      } else if (mode === "capsule") {
+        els.postInput.placeholder = "미래의 우리에게 남길 말을 써봐...";
+      } else if (mode === "memory") {
+        els.postInput.placeholder = "이 추억에 남길 이야기를 써봐...";
+      } else {
+        els.postInput.placeholder = "무슨 생각을 하고 있나요?";
+      }
+    }
+
+    document.querySelectorAll(".composer-mode-tabs button").forEach(btn => {
+      btn.addEventListener("click", () => setComposerMode(btn.dataset.mode));
+    });
+
+    els.answerDailyBtn.addEventListener("click", () => {
+      setComposerMode("daily");
+      els.composerCard?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+      els.postInput.focus();
+    });
+
+    els.makeCapsuleBtn.addEventListener("click", () => {
+      setComposerMode("capsule");
+      els.composerCard?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+      els.postInput.focus();
+    });
+
+    function renderMemoryReturn() {
+      if (!memoryReturnPool.length) {
+        els.memoryReturnPreview.textContent = "아직 되돌려볼 오래된 추억이 없어. 글이 쌓이면 여기서 다시 나타나.";
+        return;
+      }
+      const post = memoryReturnPool[memoryReturnIndex % memoryReturnPool.length];
+      const who = post.profiles?.username || post.guest_name || "우리";
+      const text = post.content?.trim() || "📸 사진으로 남긴 추억";
+      els.memoryReturnPreview.textContent =
+        `${who} · ${formatDate(post.created_at)}\n${text.slice(0, 140)}${text.length > 140 ? "…" : ""}`;
+    }
+
+    els.refreshMemoryBtn.addEventListener("click", () => {
+      if (memoryReturnPool.length) {
+        memoryReturnIndex = (memoryReturnIndex + 1) % memoryReturnPool.length;
+        renderMemoryReturn();
+      }
+    });
+
+    function renderMemoryAlbums(posts) {
+      const names = [...new Set(posts.map(p => p.memory_title).filter(Boolean))].slice(0, 20);
+      els.memoryAlbumStrip.innerHTML = "";
+
+      const all = document.createElement("button");
+      all.className = "memory-chip" + (!activeMemoryFilter ? " active" : "");
+      all.dataset.memoryFilter = "";
+      all.textContent = "전체";
+      all.addEventListener("click", () => {
+        activeMemoryFilter = "";
+        loadFeed();
+      });
+      els.memoryAlbumStrip.appendChild(all);
+
+      for (const title of names) {
+        const chip = document.createElement("button");
+        chip.className = "memory-chip" + (activeMemoryFilter === title ? " active" : "");
+        chip.textContent = title;
+        chip.addEventListener("click", () => {
+          activeMemoryFilter = title;
+          loadFeed();
+        });
+        els.memoryAlbumStrip.appendChild(chip);
+      }
+    }
+
+    function updateCapsuleDashboard(posts) {
+      const now = new Date();
+      const future = posts
+        .filter(p => p.post_type === "capsule" && p.unlock_at && new Date(p.unlock_at) > now)
+        .sort((a,b) => new Date(a.unlock_at) - new Date(b.unlock_at));
+
+      if (!future.length) {
+        els.nextCapsuleCountdown.textContent = "아직 없음";
+        els.nextCapsuleText.textContent = "열릴 타임캡슐을 만들어봐.";
+        return;
+      }
+
+      const next = future[0];
+      const diff = new Date(next.unlock_at) - now;
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      els.nextCapsuleCountdown.textContent = days > 0 ? `D-${days}` : `${Math.max(hours,0)}시간 후`;
+      els.nextCapsuleText.textContent = `다음 공개: ${new Date(next.unlock_at).toLocaleString("ko-KR")}`;
+    }
+
+    renderDailyQuestion();
+    setComposerMode("normal");
+
     // ---------- 사진 업로드 ----------
     const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
     let selectedPostImage = null;
@@ -1049,6 +1457,9 @@
       const content = els.postInput.value.trim();
       const guestName = els.guestPostName.value.trim();
       const guestPassword = els.guestPostPassword.value;
+      const postType = composerMode;
+      const unlockAtRaw = els.capsuleUnlockAt.value;
+      const memoryTitle = els.memoryTitleInput.value.trim();
 
       if (!content && !selectedPostImage) {
         setStatus("글 내용이나 사진 중 하나는 있어야 합니다.", true);
@@ -1065,6 +1476,23 @@
       if (!currentUser && guestPassword.length < 4) {
         setStatus("비로그인 글 비밀번호는 4자 이상 입력하세요.", true);
         els.guestPostPassword.focus();
+        return;
+      }
+
+      if (postType === "capsule") {
+        if (!unlockAtRaw) {
+          setStatus("타임캡슐 공개 날짜와 시간을 선택하세요.", true);
+          return;
+        }
+        if (new Date(unlockAtRaw) <= new Date()) {
+          setStatus("타임캡슐 공개 시간은 현재보다 뒤여야 합니다.", true);
+          return;
+        }
+      }
+
+      if (postType === "memory" && memoryTitle.length < 2) {
+        setStatus("공동추억 이름을 2자 이상 입력하세요.", true);
+        els.memoryTitleInput.focus();
         return;
       }
 
@@ -1094,7 +1522,11 @@
             user_id: currentUser.id,
             guest_name: null,
             content: content || "",
-            image_url: imageUrl
+            image_url: imageUrl,
+            post_type: postType,
+            unlock_at: postType === "capsule" ? new Date(unlockAtRaw).toISOString() : null,
+            memory_title: postType === "memory" ? memoryTitle : null,
+            daily_key: postType === "daily" ? todayKey() : null
           });
         error = result.error;
       } else {
@@ -1102,7 +1534,11 @@
           p_guest_name: guestName,
           p_password: guestPassword,
           p_content: content || "",
-          p_image_url: imageUrl
+          p_image_url: imageUrl,
+          p_post_type: postType,
+          p_unlock_at: postType === "capsule" ? new Date(unlockAtRaw).toISOString() : null,
+          p_memory_title: postType === "memory" ? memoryTitle : null,
+          p_daily_key: postType === "daily" ? todayKey() : null
         });
         error = result.error;
       }
@@ -1121,7 +1557,10 @@
         els.guestPostPassword.value = "";
       }
       clearSelectedImage();
-      setStatus("게시했습니다.");
+      els.capsuleUnlockAt.value = "";
+      els.memoryTitleInput.value = "";
+      setComposerMode("normal");
+      setStatus(postType === "capsule" ? "타임캡슐을 보관했어요." : "게시했습니다.");
       await loadFeed();
     }
 
@@ -1366,6 +1805,10 @@
           id,
           content,
           image_url,
+          post_type,
+          unlock_at,
+          memory_title,
+          daily_key,
           created_at,
           user_id,
           guest_name,
@@ -1399,9 +1842,22 @@
         return;
       }
 
+      const now = new Date();
+      memoryReturnPool = data.filter(p => {
+        const age = now - new Date(p.created_at);
+        return age > 7 * 86400000 && p.post_type !== "capsule";
+      });
+      renderMemoryReturn();
+      renderMemoryAlbums(data);
+      updateCapsuleDashboard(data);
+
+      const visibleData = activeMemoryFilter
+        ? data.filter(p => p.memory_title === activeMemoryFilter)
+        : data;
+
       els.feedList.innerHTML = "";
 
-      for (const post of data) {
+      for (const post of visibleData) {
         const isGuestPost = !post.user_id;
         const username = isGuestPost
           ? (post.guest_name || "익명")
@@ -1433,6 +1889,18 @@
           name.appendChild(badge);
         }
 
+        if (post.post_type && post.post_type !== "normal") {
+          const typeBadge = document.createElement("span");
+          typeBadge.className = `post-type-badge ${post.post_type}`;
+          const labels = {
+            daily: "오늘답변",
+            capsule: "타임캡슐",
+            memory: post.memory_title || "공동추억"
+          };
+          typeBadge.textContent = labels[post.post_type] || post.post_type;
+          name.appendChild(typeBadge);
+        }
+
         const time = document.createElement("div");
         time.className = "time";
         time.textContent = formatDate(post.created_at);
@@ -1458,6 +1926,24 @@
         body.className = "post-body";
         body.textContent = escapeText(post.content);
         if (!post.content) body.hidden = true;
+
+        const isLockedCapsule =
+          post.post_type === "capsule" &&
+          post.unlock_at &&
+          new Date(post.unlock_at) > new Date() &&
+          !(currentUser && currentUser.id === post.user_id);
+
+        if (isLockedCapsule) {
+          if (imageWrap) imageWrap.style.display = "none";
+          body.hidden = true;
+        }
+
+        const lockedBox = document.createElement("div");
+        if (isLockedCapsule) {
+          lockedBox.className = "locked-post";
+          const openAt = new Date(post.unlock_at).toLocaleString("ko-KR");
+          lockedBox.innerHTML = `<strong>🔒 아직 열리지 않은 타임캡슐</strong>${openAt}에 공개돼요.`;
+        }
 
         const actions = document.createElement("div");
         actions.className = "post-actions";
@@ -1591,10 +2077,16 @@
 
         form.appendChild(commentWriteRow);
         commentsBox.append(commentList, form);
+        if (isLockedCapsule) commentsBox.style.display = "none";
 
         article.appendChild(head);
-        if (imageWrap) article.appendChild(imageWrap);
-        article.append(body, actions, commentsBox);
+        if (isLockedCapsule) {
+          article.appendChild(lockedBox);
+        } else {
+          if (imageWrap) article.appendChild(imageWrap);
+          article.appendChild(body);
+        }
+        article.append(actions, commentsBox);
         els.feedList.appendChild(article);
       }
     }

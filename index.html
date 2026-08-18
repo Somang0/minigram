@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light dark" />
-  <title>MiniGram</title>
+  <title>MiniGram v5.3</title>
   <style>
     :root {
       --bg: #fafafa;
@@ -938,6 +938,57 @@
       flex-wrap: wrap;
     }
 
+
+    /* ===== v5.3 Rooms / profile feed ===== */
+    .room-card { margin-bottom: 14px; }
+    .room-toolbar { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .room-toolbar select, .room-toolbar input, .admin-row input {
+      flex:1; min-width:150px; border:1px solid var(--line); background:var(--surface-2);
+      color:var(--text); border-radius:9px; padding:10px 11px; outline:none;
+    }
+    .room-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+    .room-box { border:1px solid var(--line); background:var(--surface-2); border-radius:11px; padding:12px; }
+    .room-box strong { display:block; margin-bottom:7px; }
+    .invite-code { font-size:20px; font-weight:850; letter-spacing:2px; margin:5px 0 10px; }
+    .member-list { display:grid; gap:8px; margin-top:10px; }
+    .member-row { display:flex; align-items:center; gap:9px; border-top:1px solid var(--line); padding-top:8px; }
+    .member-row:first-child { border-top:0; padding-top:0; }
+    .member-info { min-width:0; flex:1; }
+    .member-info strong, .member-info span { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .member-info span { color:var(--muted); font-size:11px; margin-top:2px; }
+    .member-actions { display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
+    .tiny-btn { border:1px solid var(--line); background:var(--surface); color:var(--text); border-radius:7px; padding:5px 7px; cursor:pointer; font-size:11px; font-weight:700; }
+    .tiny-btn.danger { color:var(--danger); }
+    .admin-panel { margin-top:12px; border-top:1px solid var(--line); padding-top:12px; }
+    .admin-row { display:flex; gap:7px; flex-wrap:wrap; margin-top:8px; }
+    .room-required { border:1px dashed var(--line); border-radius:11px; padding:14px; color:var(--muted); text-align:center; }
+    .selected-memory { margin-top:10px; color:var(--muted); font-size:13px; }
+    .memory-suggestions { display:flex; gap:7px; overflow-x:auto; width:100%; padding-top:4px; }
+    .home-feed, .profile-feed { display:grid; gap:10px; margin-top:10px; }
+    .mini-post { border:1px solid var(--line); background:var(--surface); border-radius:12px; padding:13px; }
+    .mini-post-head { display:flex; align-items:center; gap:9px; margin-bottom:9px; }
+    .mini-post-copy { min-width:0; flex:1; }
+    .mini-post-copy strong { display:block; }
+    .mini-post-copy span { color:var(--muted); font-size:11px; }
+    .mini-post-body { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.5; }
+    .mini-post img { width:100%; max-height:320px; object-fit:cover; border-radius:9px; margin-top:9px; border:1px solid var(--line); }
+    .avatar img { width:100%; height:100%; object-fit:cover; display:block; border-radius:50%; }
+    .profile-avatar-actions { display:flex; gap:7px; flex-wrap:wrap; margin-top:12px; }
+    .profile-avatar-actions input { display:none; }
+    .character-placeholder { margin-top:14px; border:1px dashed var(--line); border-radius:12px; padding:18px; text-align:center; color:var(--muted); }
+    .character-placeholder .character-face { font-size:38px; margin-bottom:7px; }
+    .comment-item { border:1px solid var(--line); background:var(--surface-2); border-radius:10px; padding:9px 10px; }
+    .comment-field { display:grid; grid-template-columns:44px 1fr; gap:5px; line-height:1.45; }
+    .comment-field b { color:var(--muted); font-size:12px; }
+    .comment-meta-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:6px; }
+    .capsule-title-line { font-size:16px; font-weight:800; }
+    .feed-room-badge { display:inline-flex; padding:4px 8px; border-radius:999px; background:var(--surface-2); color:var(--muted); font-size:11px; font-weight:750; margin-bottom:10px; }
+    .empty-small { color:var(--muted); font-size:13px; padding:10px 0; }
+    @media (max-width:700px) {
+      .room-grid { grid-template-columns:1fr; }
+      .member-row { align-items:flex-start; }
+    }
+
 </style>
 </head>
 <body>
@@ -959,14 +1010,69 @@
 
     <section id="view-home" class="app-view active">
       <h2 class="tab-page-title">오늘의 우리</h2>
-      <p class="tab-page-sub">오늘의 질문에 답을 남기면 질문과 답변이 함께 기록돼.</p>
+      <p class="tab-page-sub">초대코드로 만든 우리 방 안에서만 기록을 나눠봐.</p>
+
+      <article id="roomPanel" class="memory-card room-card">
+        <div class="eyebrow">🏠 우리 방</div>
+        <div id="roomLoggedOut" class="room-required">친구방을 만들거나 참여하려면 로그인해줘.</div>
+        <div id="roomLoggedIn" hidden>
+          <div class="room-toolbar">
+            <select id="roomSelect" aria-label="현재 방 선택"></select>
+          </div>
+          <div class="room-grid">
+            <div class="room-box">
+              <strong>새 방 만들기</strong>
+              <div class="room-toolbar">
+                <input id="roomCreateName" maxlength="40" placeholder="방 이름 (예: 96즈 아지트)" />
+                <button id="roomCreateBtn" class="soft-btn">만들기</button>
+              </div>
+            </div>
+            <div class="room-box">
+              <strong>초대코드로 참여</strong>
+              <div class="room-toolbar">
+                <input id="roomJoinCode" maxlength="12" placeholder="초대코드 입력" autocomplete="off" />
+                <button id="roomJoinBtn" class="soft-btn">참여</button>
+              </div>
+            </div>
+          </div>
+          <div id="currentRoomArea" hidden>
+            <div class="room-grid">
+              <div class="room-box">
+                <strong id="currentRoomName">현재 방</strong>
+                <div class="invite-code" id="currentInviteCode">--------</div>
+                <button id="copyInviteBtn" class="soft-btn">초대코드 복사</button>
+              </div>
+              <div class="room-box">
+                <strong>현재 참여 멤버</strong>
+                <div id="roomMemberList" class="member-list"></div>
+              </div>
+            </div>
+            <div id="adminPanel" class="admin-panel" hidden>
+              <strong>🛠 관리자 모드</strong>
+              <div class="admin-row">
+                <input id="adminRoomName" maxlength="40" placeholder="방 이름 변경" />
+                <button id="renameRoomBtn" class="soft-btn">이름 변경</button>
+                <button id="regenInviteBtn" class="soft-btn">초대코드 재발급</button>
+              </div>
+              <div class="admin-row">
+                <button id="leaveRoomBtn" class="soft-btn">방 나가기</button>
+                <button id="deleteRoomBtn" class="delete-btn">방 삭제</button>
+              </div>
+            </div>
+            <div id="memberRoomActions" class="admin-row">
+              <button id="memberLeaveRoomBtn" class="soft-btn">이 방 나가기</button>
+            </div>
+          </div>
+          <p id="roomStatus" class="status"></p>
+        </div>
+      </article>
 
       <article class="memory-card daily-question">
         <div class="eyebrow">🔥 오늘의 질문</div>
         <h2 id="dailyQuestionText">오늘 우리끼리 남길 질문을 불러오는 중...</h2>
         <div class="memory-card-actions">
           <button id="answerDailyBtn" class="primary-btn">이 질문에 답하기</button>
-          <span id="dailyAnswerHint" class="hint" style="margin:0">피드에서도 질문과 답변이 같이 보여요.</span>
+          <span class="hint" style="margin:0">질문과 답변이 같이 기록돼.</span>
         </div>
       </article>
 
@@ -975,6 +1081,11 @@
         <h3 style="margin:0 0 8px">그냥 오늘 있었던 일도 남겨봐</h3>
         <p class="hint">사진 한 장, TMI 하나, 아무 말이나 괜찮아.</p>
         <button id="homeGoFeedBtn" class="soft-btn">일반 글 쓰기</button>
+      </div>
+
+      <div class="card" style="padding:18px;margin-top:14px">
+        <div class="eyebrow">📰 최근 피드</div>
+        <div id="homeFeedList" class="home-feed"></div>
       </div>
     </section>
 
@@ -993,11 +1104,11 @@
 
       <article class="memory-card" style="margin-top:14px">
         <div class="eyebrow">📸 우리 추억 폴더</div>
-        <h3 style="margin-bottom:12px">같은 이름의 기록을 한곳에 모아봐.</h3>
-        <div id="memoryAlbumStrip" class="memory-album-strip">
-          <button class="memory-chip active" data-memory-filter="">전체</button>
-        </div>
+        <h3 style="margin-bottom:12px">폴더를 고른 뒤 추가하면 그 추억 이름이 자동으로 들어가.</h3>
+        <div id="memoryAlbumStrip" class="memory-album-strip"></div>
+        <div id="memorySelectedText" class="selected-memory">선택: 전체</div>
         <div class="memory-card-actions">
+          <button id="memoryViewFolderBtn" class="soft-btn">선택 폴더 글 보기</button>
           <button id="memoryGoFeedBtn" class="primary-btn">공동추억 추가</button>
         </div>
       </article>
@@ -1005,7 +1116,7 @@
 
     <section id="view-capsules" class="app-view">
       <h2 class="tab-page-title">타임캡슐</h2>
-      <p class="tab-page-sub">잠겨 있어도 여기서는 존재와 공개 예정일을 확인할 수 있어.</p>
+      <p class="tab-page-sub">공개 전에는 이름과 날짜만 보이고 내용은 잠겨 있어.</p>
 
       <article class="memory-card">
         <div class="eyebrow">⏳ 다음 공개</div>
@@ -1017,16 +1128,16 @@
       </article>
 
       <div style="margin-top:16px">
-        <h3 style="margin:0 0 10px">내가 만든 / 공개 예정 타임캡슐</h3>
+        <h3 style="margin:0 0 10px">우리 방 타임캡슐</h3>
         <section id="capsuleList"></section>
       </div>
     </section>
 
     <section id="view-feed" class="app-view">
       <h2 class="tab-page-title">피드</h2>
+      <div id="feedRoomBadge" class="feed-room-badge">방 선택 필요</div>
       <p id="feedContextText" class="tab-page-sub">글, 사진, 댓글은 여기에서 확인해.</p>
       <section id="composerCard" class="card composer">
-
         <div class="composer-mode-tabs">
           <button class="active" data-mode="normal">💬 일반</button>
           <button data-mode="daily">🔥 오늘답변</button>
@@ -1035,30 +1146,27 @@
         </div>
         <div id="composerContext" class="composer-context"></div>
         <div class="composer-row">
-          <div class="avatar"><span id="composerAvatar">?</span></div>
-          <input id="guestPostName" class="guest-name-input" maxlength="20"
-                 placeholder="닉네임" />
-          <input id="guestPostPassword" class="guest-password-input" type="password"
-                 minlength="4" maxlength="50" placeholder="비밀번호" />
-          <input id="postInput" class="composer-input" maxlength="500"
-                 placeholder="로그인 없이도 글을 남길 수 있어요" />
+          <div id="composerAvatar" class="avatar"><span>?</span></div>
+          <input id="guestPostName" class="guest-name-input" maxlength="20" placeholder="닉네임" />
+          <input id="guestPostPassword" class="guest-password-input" type="password" minlength="4" maxlength="50" placeholder="비밀번호" />
+          <input id="postInput" class="composer-input" maxlength="500" placeholder="로그인 없이도 글을 남길 수 있어요" />
           <button id="postBtn" class="primary-btn">게시</button>
         </div>
 
         <div id="capsuleFields" class="special-fields">
+          <input id="capsuleTitleInput" maxlength="40" placeholder="타임캡슐 이름 (예: 1년 뒤 우리에게)" />
           <input id="capsuleUnlockAt" type="datetime-local" aria-label="타임캡슐 공개 시간" />
-          <span class="hint" style="margin:auto 0">이 시간이 지나면 모두에게 보여요.</span>
+          <span class="hint" style="margin:auto 0">이 시간이 지나면 모두에게 보여.</span>
         </div>
 
         <div id="memoryFields" class="special-fields">
-          <input id="memoryTitleInput" maxlength="40" placeholder="추억 이름 (예: 대부도 2026)" />
+          <input id="memoryTitleInput" list="memoryTitleOptions" maxlength="40" placeholder="추억 이름 직접 입력 또는 기존 폴더 선택" />
+          <datalist id="memoryTitleOptions"></datalist>
+          <div id="memoryComposerSuggestions" class="memory-suggestions"></div>
         </div>
 
         <div class="image-picker-row">
-          <label class="image-label">
-            📷 사진 추가
-            <input id="postImageInput" type="file" accept="image/*" />
-          </label>
+          <label class="image-label">📷 사진 추가<input id="postImageInput" type="file" accept="image/*" /></label>
           <span class="hint" style="margin:0">이미지 1장 · 최대 5MB</span>
         </div>
         <div id="imagePreviewWrap" class="image-preview-wrap">
@@ -1072,25 +1180,38 @@
 
     <section id="view-profile" class="app-view">
       <h2 class="tab-page-title">내정보</h2>
-      <p class="tab-page-sub">로그인과 계정 정보를 관리해.</p>
+      <p class="tab-page-sub">내 프로필과 내가 남긴 기록을 한곳에서 관리해.</p>
       <aside class="sidebar">
-      <section id="profilePanel" class="card profile-box" hidden>
-        <div class="profile-line">
-          <div class="avatar"><span id="sideAvatar">?</span></div>
-          <div class="profile-copy">
-            <strong id="sideUsername">사용자</strong>
-            <span id="sideEmail"></span>
+        <section id="profilePanel" class="card profile-box" hidden>
+          <div class="profile-line">
+            <div id="sideAvatar" class="avatar"><span>?</span></div>
+            <div class="profile-copy">
+              <strong id="sideUsername">사용자</strong>
+              <span id="sideEmail"></span>
+            </div>
           </div>
-        </div>
-        <p class="help">로그인 글은 본인만 수정/삭제할 수 있고, 비로그인 글·댓글은 작성 비밀번호로 관리할 수 있어요.</p>
-      </section>
+          <div class="profile-avatar-actions">
+            <label class="soft-btn">프로필 사진 추가/수정<input id="profileImageInput" type="file" accept="image/*" /></label>
+            <button id="deleteProfileImageBtn" class="delete-btn">프로필 사진 삭제</button>
+          </div>
+          <p id="profileStatus" class="status"></p>
+          <div class="character-placeholder">
+            <div class="character-face">🙂</div>
+            <strong>나만의 캐릭터 영역</strong>
+            <div>캐릭터 꾸미기 기능은 추후 추가 예정</div>
+          </div>
+          <div style="margin-top:18px">
+            <div class="eyebrow">📒 나만의 피드</div>
+            <div id="profileFeedList" class="profile-feed"></div>
+          </div>
+        </section>
 
-      <section id="guestPanel" class="card guest-box">
-        <strong>MiniGram에 오신 걸 환영해요</strong>
-        <p>비로그인도 닉네임 + 비밀번호로 글과 댓글을 남기고, 같은 비밀번호로 수정/삭제할 수 있어요.</p>
-        <button id="guestLoginBtn" class="primary-btn">시작하기</button>
-      </section>
-    </aside>
+        <section id="guestPanel" class="card guest-box">
+          <strong>MiniGram에 오신 걸 환영해요</strong>
+          <p>친구방 기능은 로그인 후 사용할 수 있어. 기존처럼 비로그인 공개 기록도 남길 수 있어.</p>
+          <button id="guestLoginBtn" class="primary-btn">시작하기</button>
+        </section>
+      </aside>
     </section>
 
   </section>
@@ -1144,1400 +1265,485 @@
   <script type="module">
     import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-    // =========================================================
-    // 여기에 본인의 Supabase 값만 넣으세요.
-    // =========================================================
     const SUPABASE_URL = "https://dcpavjdfvrqwijvpejqy.supabase.co";
     const SUPABASE_KEY = "sb_publishable_1XJ7OIZW4Kn7sbJhuTs-og_T_f0wSkD";
-    // service_role / secret key는 절대 넣지 마세요.
-    // =========================================================
-
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    const $ = id => document.getElementById(id);
     const els = {
-      dailyQuestionText: document.getElementById("dailyQuestionText"),
-      composerContext: document.getElementById("composerContext"),
-      feedContextText: document.getElementById("feedContextText"),
-      capsuleList: document.getElementById("capsuleList"),
-      answerDailyBtn: document.getElementById("answerDailyBtn"),
-      makeCapsuleBtn: document.getElementById("makeCapsuleBtn"),
-      nextCapsuleCountdown: document.getElementById("nextCapsuleCountdown"),
-      nextCapsuleText: document.getElementById("nextCapsuleText"),
-      memoryReturnPreview: document.getElementById("memoryReturnPreview"),
-      refreshMemoryBtn: document.getElementById("refreshMemoryBtn"),
-      memoryAlbumStrip: document.getElementById("memoryAlbumStrip"),
-      capsuleFields: document.getElementById("capsuleFields"),
-      capsuleUnlockAt: document.getElementById("capsuleUnlockAt"),
-      memoryFields: document.getElementById("memoryFields"),
-      memoryTitleInput: document.getElementById("memoryTitleInput"),
-      themeBtn: document.getElementById("themeBtn"),
-      authBtn: document.getElementById("authBtn"),
-      logoutBtn: document.getElementById("logoutBtn"),
-      guestLoginBtn: document.getElementById("guestLoginBtn"),
-      profilePanel: document.getElementById("profilePanel"),
-      guestPanel: document.getElementById("guestPanel"),
-      sideUsername: document.getElementById("sideUsername"),
-      sideEmail: document.getElementById("sideEmail"),
-      sideAvatar: document.getElementById("sideAvatar"),
-      composerAvatar: document.getElementById("composerAvatar"),
-      guestPostName: document.getElementById("guestPostName"),
-      guestPostPassword: document.getElementById("guestPostPassword"),
-      postInput: document.getElementById("postInput"),
-      postBtn: document.getElementById("postBtn"),
-      postImageInput: document.getElementById("postImageInput"),
-      imagePreviewWrap: document.getElementById("imagePreviewWrap"),
-      imagePreview: document.getElementById("imagePreview"),
-      clearImageBtn: document.getElementById("clearImageBtn"),
-      status: document.getElementById("status"),
-      feedList: document.getElementById("feedList"),
-      authModal: document.getElementById("authModal"),
-      loginTab: document.getElementById("loginTab"),
-      signupTab: document.getElementById("signupTab"),
-      modalTitle: document.getElementById("modalTitle"),
-      modalSub: document.getElementById("modalSub"),
-      usernameField: document.getElementById("usernameField"),
-      usernameInput: document.getElementById("usernameInput"),
-      emailInput: document.getElementById("emailInput"),
-      passwordInput: document.getElementById("passwordInput"),
-      authStatus: document.getElementById("authStatus"),
-      closeModalBtn: document.getElementById("closeModalBtn"),
-      submitAuthBtn: document.getElementById("submitAuthBtn")
+      themeBtn: $("themeBtn"), authBtn: $("authBtn"), logoutBtn: $("logoutBtn"), guestLoginBtn: $("guestLoginBtn"),
+      authModal: $("authModal"), loginTab: $("loginTab"), signupTab: $("signupTab"), modalTitle: $("modalTitle"), modalSub: $("modalSub"),
+      usernameField: $("usernameField"), usernameInput: $("usernameInput"), emailInput: $("emailInput"), passwordInput: $("passwordInput"),
+      authStatus: $("authStatus"), closeModalBtn: $("closeModalBtn"), submitAuthBtn: $("submitAuthBtn"),
+      roomLoggedOut: $("roomLoggedOut"), roomLoggedIn: $("roomLoggedIn"), roomSelect: $("roomSelect"), roomCreateName: $("roomCreateName"),
+      roomCreateBtn: $("roomCreateBtn"), roomJoinCode: $("roomJoinCode"), roomJoinBtn: $("roomJoinBtn"), currentRoomArea: $("currentRoomArea"),
+      currentRoomName: $("currentRoomName"), currentInviteCode: $("currentInviteCode"), copyInviteBtn: $("copyInviteBtn"), roomMemberList: $("roomMemberList"),
+      roomStatus: $("roomStatus"), adminPanel: $("adminPanel"), adminRoomName: $("adminRoomName"), renameRoomBtn: $("renameRoomBtn"),
+      regenInviteBtn: $("regenInviteBtn"), leaveRoomBtn: $("leaveRoomBtn"), deleteRoomBtn: $("deleteRoomBtn"), memberRoomActions: $("memberRoomActions"),
+      memberLeaveRoomBtn: $("memberLeaveRoomBtn"),
+      dailyQuestionText: $("dailyQuestionText"), answerDailyBtn: $("answerDailyBtn"), homeGoFeedBtn: $("homeGoFeedBtn"), homeFeedList: $("homeFeedList"),
+      memoryReturnPreview: $("memoryReturnPreview"), refreshMemoryBtn: $("refreshMemoryBtn"), memoryAlbumStrip: $("memoryAlbumStrip"),
+      memorySelectedText: $("memorySelectedText"), memoryViewFolderBtn: $("memoryViewFolderBtn"), memoryGoFeedBtn: $("memoryGoFeedBtn"),
+      nextCapsuleCountdown: $("nextCapsuleCountdown"), nextCapsuleText: $("nextCapsuleText"), makeCapsuleBtn: $("makeCapsuleBtn"), capsuleList: $("capsuleList"),
+      feedRoomBadge: $("feedRoomBadge"), feedContextText: $("feedContextText"), composerCard: $("composerCard"), composerContext: $("composerContext"),
+      composerAvatar: $("composerAvatar"), guestPostName: $("guestPostName"), guestPostPassword: $("guestPostPassword"), postInput: $("postInput"), postBtn: $("postBtn"),
+      capsuleFields: $("capsuleFields"), capsuleTitleInput: $("capsuleTitleInput"), capsuleUnlockAt: $("capsuleUnlockAt"),
+      memoryFields: $("memoryFields"), memoryTitleInput: $("memoryTitleInput"), memoryTitleOptions: $("memoryTitleOptions"), memoryComposerSuggestions: $("memoryComposerSuggestions"),
+      postImageInput: $("postImageInput"), imagePreviewWrap: $("imagePreviewWrap"), imagePreview: $("imagePreview"), clearImageBtn: $("clearImageBtn"), status: $("status"), feedList: $("feedList"),
+      profilePanel: $("profilePanel"), guestPanel: $("guestPanel"), sideUsername: $("sideUsername"), sideEmail: $("sideEmail"), sideAvatar: $("sideAvatar"),
+      profileImageInput: $("profileImageInput"), deleteProfileImageBtn: $("deleteProfileImageBtn"), profileStatus: $("profileStatus"), profileFeedList: $("profileFeedList")
     };
 
     let currentUser = null;
     let currentProfile = null;
     let authMode = "login";
+    let rooms = [];
+    let currentRoomId = null;
+    let currentRoom = null;
+    let roomMembers = [];
     let composerMode = "normal";
     let activeMemoryFilter = "";
+    let memoryNames = [];
     let memoryReturnPool = [];
     let memoryReturnIndex = 0;
     let currentDailyQuestion = "";
+    let feedCache = [];
     let capsuleMetadataCache = [];
-
-    const DAILY_QUESTIONS = [
-      "오늘 제일 어이없었던 일은?",
-      "우리 중 오늘 가장 먼저 생각난 사람은?",
-      "최근에 혼자 웃었던 순간은?",
-      "오늘 사진 딱 한 장만 남긴다면?",
-      "올해 우리끼리 꼭 하고 싶은 일은?",
-      "지금 다시 가고 싶은 여행지는?",
-      "최근 제일 맛있었던 음식은?",
-      "요즘 우리 단톡방에서 제일 웃긴 사람은?",
-      "오늘의 TMI 하나만 풀어봐.",
-      "지금의 우리에게 1년 뒤 하고 싶은 말은?",
-      "최근 가장 많이 들은 노래는?",
-      "우리끼리만 아는 레전드 사건 하나?",
-      "오늘 기분을 이모지 세 개로 표현하면?",
-      "다음 모임에서 꼭 하고 싶은 것은?"
-    ];
-
-    function setStatus(message = "", isError = false) {
-      els.status.textContent = message;
-      els.status.className = isError ? "status error" : "status";
-    }
-
-    function setAuthStatus(message = "", isError = false) {
-      els.authStatus.textContent = message;
-      els.authStatus.className = isError ? "status error" : "status";
-    }
-
-    function initials(name) {
-      const value = (name || "?").trim();
-      return value ? value.slice(0, 1).toUpperCase() : "?";
-    }
-
-    function formatDate(value) {
-      if (!value) return "";
-      return new Date(value).toLocaleString("ko-KR", {
-        month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit"
-      });
-    }
-
-    function escapeText(value) {
-      return String(value ?? "");
-    }
-
-    // ---------- 다크모드 ----------
-    function applyTheme(theme) {
-      document.documentElement.dataset.theme = theme;
-      localStorage.setItem("minigram-theme", theme);
-      els.themeBtn.textContent = theme === "dark" ? "☀️" : "🌙";
-      els.themeBtn.setAttribute("aria-label", theme === "dark" ? "라이트모드 전환" : "다크모드 전환");
-    }
-
-    const savedTheme = localStorage.getItem("minigram-theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    applyTheme(savedTheme || (prefersDark ? "dark" : "light"));
-
-    els.themeBtn.addEventListener("click", () => {
-      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      applyTheme(next);
-    });
-
-    // ---------- 로그인 모달 ----------
-    function setAuthMode(mode) {
-      authMode = mode;
-      const signup = mode === "signup";
-      els.loginTab.classList.toggle("active", !signup);
-      els.signupTab.classList.toggle("active", signup);
-      els.usernameField.hidden = !signup;
-      els.modalTitle.textContent = signup ? "회원가입" : "로그인";
-      els.modalSub.textContent = signup
-        ? "닉네임, 이메일, 비밀번호로 새 계정을 만드세요."
-        : "이메일과 비밀번호로 로그인하세요.";
-      els.submitAuthBtn.textContent = signup ? "계정 만들기" : "로그인";
-      els.passwordInput.autocomplete = signup ? "new-password" : "current-password";
-      setAuthStatus();
-    }
-
-    function openAuth(mode = "login") {
-      setAuthMode(mode);
-      els.authModal.classList.add("open");
-      setTimeout(() => (mode === "signup" ? els.usernameInput : els.emailInput).focus(), 0);
-    }
-
-    function closeAuth() {
-      els.authModal.classList.remove("open");
-      setAuthStatus();
-    }
-
-    els.authBtn.addEventListener("click", () => openAuth("login"));
-    els.guestLoginBtn.addEventListener("click", () => openAuth("signup"));
-    els.closeModalBtn.addEventListener("click", closeAuth);
-    els.loginTab.addEventListener("click", () => setAuthMode("login"));
-    els.signupTab.addEventListener("click", () => setAuthMode("signup"));
-    els.authModal.addEventListener("click", (e) => {
-      if (e.target === els.authModal) closeAuth();
-    });
-
-    async function submitAuth() {
-      const email = els.emailInput.value.trim();
-      const password = els.passwordInput.value;
-      const username = els.usernameInput.value.trim();
-
-      if (!email || !password) {
-        setAuthStatus("이메일과 비밀번호를 입력하세요.", true);
-        return;
-      }
-
-      if (password.length < 6) {
-        setAuthStatus("비밀번호는 6자 이상으로 입력하세요.", true);
-        return;
-      }
-
-      els.submitAuthBtn.disabled = true;
-
-      if (authMode === "signup") {
-        if (username.length < 2) {
-          setAuthStatus("닉네임은 2자 이상 입력하세요.", true);
-          els.submitAuthBtn.disabled = false;
-          return;
-        }
-
-        setAuthStatus("계정을 만드는 중...");
-
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: { username }
-          }
-        });
-
-        els.submitAuthBtn.disabled = false;
-
-        if (error) {
-          setAuthStatus(error.message, true);
-          return;
-        }
-
-        // 프로젝트에서 이메일 확인이 켜져 있으면 session이 바로 생기지 않을 수 있음.
-        if (!data.session) {
-          setAuthStatus("가입 완료! 이메일 확인이 켜져 있다면 받은 메일에서 인증 후 로그인하세요.");
-          return;
-        }
-
-        closeAuth();
-        return;
-      }
-
-      setAuthStatus("로그인 중...");
-
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      els.submitAuthBtn.disabled = false;
-
-      if (error) {
-        setAuthStatus(error.message, true);
-        return;
-      }
-
-      closeAuth();
-    }
-
-    els.submitAuthBtn.addEventListener("click", submitAuth);
-    els.passwordInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") submitAuth();
-    });
-
-    els.logoutBtn.addEventListener("click", async () => {
-      await supabase.auth.signOut();
-    });
-
-    // ---------- 프로필 / 세션 ----------
-    async function loadMyProfile() {
-      if (!currentUser) {
-        currentProfile = null;
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("id, username")
-        .eq("id", currentUser.id)
-        .single();
-
-      if (error) {
-        console.error(error);
-        currentProfile = {
-          id: currentUser.id,
-          username: currentUser.user_metadata?.username || "user"
-        };
-        return;
-      }
-
-      currentProfile = data;
-    }
-
-    function renderSession() {
-      const loggedIn = Boolean(currentUser);
-      els.authBtn.hidden = loggedIn;
-      els.logoutBtn.hidden = !loggedIn;
-      els.profilePanel.hidden = !loggedIn;
-      els.guestPanel.hidden = loggedIn;
-
-      els.postInput.disabled = false;
-      els.postBtn.disabled = false;
-      els.guestPostName.hidden = loggedIn;
-      els.guestPostPassword.hidden = loggedIn;
-      els.postInput.placeholder = loggedIn
-        ? "무슨 생각을 하고 있나요?"
-        : "로그인 없이도 글을 남길 수 있어요";
-
-      if (loggedIn) {
-        const name = currentProfile?.username || currentUser.user_metadata?.username || "user";
-        els.sideUsername.textContent = name;
-        els.sideEmail.textContent = currentUser.email || "";
-        els.sideAvatar.textContent = initials(name);
-        els.composerAvatar.textContent = initials(name);
-      } else {
-        els.composerAvatar.textContent = "?";
-      }
-    }
-
-
-
-    // ---------- v5.1 탭 네비게이션 ----------
-    function openTab(tabName) {
-      document.querySelectorAll(".app-view").forEach(view => {
-        view.classList.toggle("active", view.id === `view-${tabName}`);
-      });
-
-      document.querySelectorAll(".bottom-nav button").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.tab === tabName);
-      });
-
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    document.querySelectorAll(".bottom-nav button").forEach(btn => {
-      btn.addEventListener("click", () => openTab(btn.dataset.tab));
-    });
-
-
-    // ---------- MiniGram Memories v5 ----------
-    function todayKey() {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-    }
-
-    function getDailyQuestion() {
-      const d = new Date();
-      const seed = Math.floor(d.getTime() / 86400000);
-      return DAILY_QUESTIONS[Math.abs(seed) % DAILY_QUESTIONS.length];
-    }
-
-    function renderDailyQuestion() {
-      currentDailyQuestion = getDailyQuestion();
-      els.dailyQuestionText.textContent = currentDailyQuestion;
-    }
-
-    function setComposerMode(mode) {
-      composerMode = mode;
-      document.querySelectorAll(".composer-mode-tabs button").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.mode === mode);
-      });
-
-      els.capsuleFields.classList.toggle("show", mode === "capsule");
-      els.memoryFields.classList.toggle("show", mode === "memory");
-
-      let context = "";
-
-      if (mode === "daily") {
-        context = `🔥 오늘의 질문<br><strong>${currentDailyQuestion || getDailyQuestion()}</strong>`;
-        els.postInput.placeholder = "이 질문에 대한 답을 남겨봐...";
-        els.feedContextText.textContent = "오늘의 질문과 답변이 함께 저장돼.";
-      } else if (mode === "capsule") {
-        context = "⏳ 타임캡슐 · 공개 날짜 전에는 내용이 잠겨요.";
-        els.postInput.placeholder = "미래의 우리에게 남길 말을 써봐...";
-        els.feedContextText.textContent = "타임캡슐 작성 중 · 저장 후 캡슐 탭에서 공개 예정일을 확인할 수 있어.";
-      } else if (mode === "memory") {
-        context = "📸 공동추억 · 같은 추억 이름을 쓰면 한 폴더처럼 모여요.";
-        els.postInput.placeholder = "이 추억에 남길 이야기를 써봐...";
-        els.feedContextText.textContent = "공동추억을 작성 중이야.";
-      } else {
-        els.postInput.placeholder = currentUser ? "무슨 생각을 하고 있나요?" : "로그인 없이도 글을 남길 수 있어요";
-        els.feedContextText.textContent = "글, 사진, 댓글은 여기에서 확인해.";
-      }
-
-      els.composerContext.innerHTML = context;
-      els.composerContext.classList.toggle("show", Boolean(context));
-    }
-
-    document.querySelectorAll(".composer-mode-tabs button").forEach(btn => {
-      btn.addEventListener("click", () => setComposerMode(btn.dataset.mode));
-    });
-
-    els.answerDailyBtn.addEventListener("click", () => {
-      openTab("feed");
-      setComposerMode("daily");
-      setTimeout(() => els.postInput.focus(), 50);
-    });
-
-    els.makeCapsuleBtn.addEventListener("click", () => {
-      openTab("feed");
-      setComposerMode("capsule");
-      setTimeout(() => els.postInput.focus(), 50);
-    });
-
-
-    document.getElementById("homeGoFeedBtn")?.addEventListener("click", () => {
-      openTab("feed");
-      setComposerMode("normal");
-      setTimeout(() => els.postInput.focus(), 50);
-    });
-
-    document.getElementById("capsuleGoFeedBtn")?.addEventListener("click", () => {
-      openTab("feed");
-      setComposerMode("capsule");
-      setTimeout(() => els.postInput.focus(), 50);
-    });
-
-
-    document.getElementById("memoryGoFeedBtn")?.addEventListener("click", () => {
-      openTab("feed");
-      setComposerMode("memory");
-      setTimeout(() => els.memoryTitleInput.focus(), 50);
-    });
-
-
-    function formatCapsuleCountdown(unlockAt) {
-      const diff = new Date(unlockAt) - new Date();
-      if (diff <= 0) return "공개됨";
-      const days = Math.floor(diff / 86400000);
-      const hours = Math.floor((diff % 86400000) / 3600000);
-      const mins = Math.floor((diff % 3600000) / 60000);
-      if (days > 0) return `D-${days}`;
-      if (hours > 0) return `${hours}시간 ${mins}분 후`;
-      return `${Math.max(mins, 1)}분 후`;
-    }
-
-    async function loadCapsules() {
-      els.capsuleList.innerHTML = '<div class="card empty">타임캡슐을 불러오는 중...</div>';
-
-      const { data: visibleCapsules, error } = await supabase
-        .from("posts")
-        .select(`
-          id, content, image_url, created_at, user_id, guest_name,
-          unlock_at, post_type,
-          profiles ( username )
-        `)
-        .eq("post_type", "capsule")
-        .order("unlock_at", { ascending: true });
-
-      if (error) {
-        console.error(error);
-        els.capsuleList.innerHTML = `<div class="card empty">캡슐 오류: ${escapeText(error.message)}</div>`;
-        return;
-      }
-
-      // 잠긴 비로그인 캡슐은 RLS 때문에 본문 행이 안 보이므로
-      // 안전한 메타데이터 RPC에서 id/닉네임/날짜만 추가로 받음.
-      const { data: guestMeta, error: metaError } = await supabase.rpc("list_locked_guest_capsules");
-      if (metaError) console.error(metaError);
-
-      const items = [];
-      const seen = new Set();
-
-      for (const c of (visibleCapsules || [])) {
-        items.push({ ...c, metadataOnly: false });
-        seen.add(String(c.id));
-      }
-
-      for (const m of (guestMeta || [])) {
-        if (!seen.has(String(m.id))) {
-          items.push({
-            id: m.id,
-            guest_name: m.guest_name,
-            unlock_at: m.unlock_at,
-            created_at: m.created_at,
-            metadataOnly: true,
-            user_id: null,
-            content: null,
-            image_url: null,
-            profiles: null
-          });
-        }
-      }
-
-      items.sort((a,b) => new Date(a.unlock_at) - new Date(b.unlock_at));
-      capsuleMetadataCache = items;
-
-      if (!items.length) {
-        els.capsuleList.innerHTML = '<div class="card empty">아직 타임캡슐이 없어.</div>';
-        return;
-      }
-
-      els.capsuleList.innerHTML = "";
-
-      for (const c of items) {
-        const locked = new Date(c.unlock_at) > new Date();
-        const mine = Boolean(currentUser && c.user_id === currentUser.id);
-        const guest = !c.user_id;
-        const card = document.createElement("article");
-        card.className = "capsule-preview-card";
-
-        const who = c.profiles?.username || c.guest_name || "guest";
-        const title = document.createElement("strong");
-        title.textContent = `⏳ ${who}의 타임캡슐`;
-
-        const meta = document.createElement("div");
-        meta.className = "capsule-meta";
-        meta.textContent = `${new Date(c.unlock_at).toLocaleString("ko-KR")} 공개 · ${formatCapsuleCountdown(c.unlock_at)}`;
-
-        const summary = document.createElement("div");
-        summary.className = "capsule-summary";
-
-        if (c.metadataOnly) {
-          summary.textContent = "🔒 비로그인 사용자가 만든 잠긴 타임캡슐입니다. 내용은 공개일까지 숨겨져 있어요.";
-        } else if (locked && mine) {
-          summary.textContent = c.content?.trim() || (c.image_url ? "📷 사진이 들어 있는 타임캡슐" : "내용 없음");
-        } else if (locked) {
-          summary.textContent = "🔒 공개일까지 내용이 잠겨 있어요.";
-        } else {
-          summary.textContent = c.content?.trim() || (c.image_url ? "📷 사진 타임캡슐" : "공개된 타임캡슐");
-        }
-
-        card.append(title, meta, summary);
-
-        const actions = document.createElement("div");
-        actions.className = "capsule-preview-actions";
-
-        if (locked && mine) {
-          const edit = document.createElement("button");
-          edit.className = "soft-btn";
-          edit.textContent = "내용 수정";
-          edit.addEventListener("click", async () => {
-            const next = prompt("타임캡슐 내용을 수정하세요.", c.content || "");
-            if (next === null) return;
-            const { error: e } = await supabase.from("posts").update({ content: next.trim() }).eq("id", c.id);
-            if (e) return alert("수정 오류: " + e.message);
-            await loadCapsules();
-          });
-
-          const del = document.createElement("button");
-          del.className = "delete-btn";
-          del.textContent = "삭제";
-          del.addEventListener("click", async () => {
-            if (!confirm("이 타임캡슐을 삭제할까요?")) return;
-            const { error: e } = await supabase.from("posts").delete().eq("id", c.id);
-            if (e) return alert("삭제 오류: " + e.message);
-            await loadCapsules();
-            await loadFeed();
-          });
-          actions.append(edit, del);
-        }
-
-        if (locked && guest) {
-          const edit = document.createElement("button");
-          edit.className = "soft-btn";
-          edit.textContent = "비밀번호로 수정";
-          edit.addEventListener("click", async () => {
-            const password = prompt("작성 비밀번호를 입력하세요.");
-            if (password === null) return;
-            const next = prompt("타임캡슐 내용을 수정하세요.");
-            if (next === null) return;
-            const { data, error: e } = await supabase.rpc("update_guest_capsule", {
-              p_post_id: c.id,
-              p_password: password,
-              p_content: next.trim()
-            });
-            if (e) return alert("수정 오류: " + e.message);
-            if (data !== true) return alert("비밀번호가 맞지 않습니다.");
-            await loadCapsules();
-          });
-
-          const del = document.createElement("button");
-          del.className = "delete-btn";
-          del.textContent = "비밀번호로 삭제";
-          del.addEventListener("click", async () => {
-            const password = prompt("작성 비밀번호를 입력하세요.");
-            if (password === null) return;
-            const { data, error: e } = await supabase.rpc("delete_guest_post", {
-              p_post_id: c.id,
-              p_password: password
-            });
-            if (e) return alert("삭제 오류: " + e.message);
-            if (data !== true) return alert("비밀번호가 맞지 않습니다.");
-            await loadCapsules();
-            await loadFeed();
-          });
-          actions.append(edit, del);
-        }
-
-        if (actions.children.length) card.appendChild(actions);
-        els.capsuleList.appendChild(card);
-      }
-    }
-
-    function renderMemoryReturn() {
-      if (!memoryReturnPool.length) {
-        els.memoryReturnPreview.textContent = "아직 되돌려볼 오래된 추억이 없어. 글이 쌓이면 여기서 다시 나타나.";
-        return;
-      }
-      const post = memoryReturnPool[memoryReturnIndex % memoryReturnPool.length];
-      const who = post.profiles?.username || post.guest_name || "우리";
-      const text = post.content?.trim() || "📸 사진으로 남긴 추억";
-      els.memoryReturnPreview.textContent =
-        `${who} · ${formatDate(post.created_at)}\n${text.slice(0, 140)}${text.length > 140 ? "…" : ""}`;
-    }
-
-    els.refreshMemoryBtn.addEventListener("click", () => {
-      if (memoryReturnPool.length) {
-        memoryReturnIndex = (memoryReturnIndex + 1) % memoryReturnPool.length;
-        renderMemoryReturn();
-      }
-    });
-
-    function renderMemoryAlbums(posts) {
-      const names = [...new Set(posts.map(p => p.memory_title).filter(Boolean))].slice(0, 20);
-      els.memoryAlbumStrip.innerHTML = "";
-
-      const all = document.createElement("button");
-      all.className = "memory-chip" + (!activeMemoryFilter ? " active" : "");
-      all.dataset.memoryFilter = "";
-      all.textContent = "전체";
-      all.addEventListener("click", () => {
-        activeMemoryFilter = "";
-        loadFeed();
-      });
-      els.memoryAlbumStrip.appendChild(all);
-
-      for (const title of names) {
-        const chip = document.createElement("button");
-        chip.className = "memory-chip" + (activeMemoryFilter === title ? " active" : "");
-        chip.textContent = title;
-        chip.addEventListener("click", () => {
-          activeMemoryFilter = title;
-          loadFeed();
-        });
-        els.memoryAlbumStrip.appendChild(chip);
-      }
-    }
-
-    function updateCapsuleDashboard(posts) {
-      const now = new Date();
-      const future = posts
-        .filter(p => p.post_type === "capsule" && p.unlock_at && new Date(p.unlock_at) > now)
-        .sort((a,b) => new Date(a.unlock_at) - new Date(b.unlock_at));
-
-      if (!future.length) {
-        els.nextCapsuleCountdown.textContent = "아직 없음";
-        els.nextCapsuleText.textContent = "열릴 타임캡슐을 만들어봐.";
-        return;
-      }
-
-      const next = future[0];
-      const diff = new Date(next.unlock_at) - now;
-      const days = Math.floor(diff / 86400000);
-      const hours = Math.floor((diff % 86400000) / 3600000);
-      els.nextCapsuleCountdown.textContent = days > 0 ? `D-${days}` : `${Math.max(hours,0)}시간 후`;
-      els.nextCapsuleText.textContent = `다음 공개: ${new Date(next.unlock_at).toLocaleString("ko-KR")}`;
-    }
-
-    renderDailyQuestion();
-    setComposerMode("normal");
-
-    // ---------- 사진 업로드 ----------
-    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
     let selectedPostImage = null;
     let previewObjectUrl = null;
 
-    function clearSelectedImage() {
-      selectedPostImage = null;
-      els.postImageInput.value = "";
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+    const DAILY_QUESTIONS = [
+      "오늘 제일 어이없었던 일은?", "우리 중 오늘 가장 먼저 생각난 사람은?", "최근에 혼자 웃었던 순간은?",
+      "오늘 사진 딱 한 장만 남긴다면?", "올해 우리끼리 꼭 하고 싶은 일은?", "지금 다시 가고 싶은 여행지는?",
+      "최근 제일 맛있었던 음식은?", "요즘 우리 단톡방에서 제일 웃긴 사람은?", "오늘의 TMI 하나만 풀어봐.",
+      "지금의 우리에게 1년 뒤 하고 싶은 말은?", "최근 가장 많이 들은 노래는?", "우리끼리만 아는 레전드 사건 하나?",
+      "오늘 기분을 이모지 세 개로 표현하면?", "다음 모임에서 꼭 하고 싶은 것은?"
+    ];
 
-      if (previewObjectUrl) {
-        URL.revokeObjectURL(previewObjectUrl);
-        previewObjectUrl = null;
+    function setStatus(message="", isError=false) { els.status.textContent=message; els.status.className=isError?"status error":"status"; }
+    function setAuthStatus(message="", isError=false) { els.authStatus.textContent=message; els.authStatus.className=isError?"status error":"status"; }
+    function setRoomStatus(message="", isError=false) { els.roomStatus.textContent=message; els.roomStatus.className=isError?"status error":"status"; }
+    function setProfileStatus(message="", isError=false) { els.profileStatus.textContent=message; els.profileStatus.className=isError?"status error":"status"; }
+    function initials(name) { const v=(name||"?").trim(); return v ? v.slice(0,1).toUpperCase() : "?"; }
+    function formatDate(value) { if(!value) return ""; return new Date(value).toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}); }
+    function escapeHtml(value) { return String(value??"").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+    function todayKey(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; }
+    function getDailyQuestion(){ const seed=Math.floor(Date.now()/86400000); return DAILY_QUESTIONS[Math.abs(seed)%DAILY_QUESTIONS.length]; }
+    function currentRoomIsAdmin(){ return currentRoom?.myRole === "admin"; }
+
+    function setAvatar(box, name, avatarUrl) {
+      if (!box) return;
+      box.innerHTML = "";
+      if (avatarUrl) {
+        const img=document.createElement("img"); img.src=avatarUrl; img.alt=`${name||"사용자"} 프로필 사진`; img.loading="lazy";
+        box.appendChild(img);
+      } else {
+        const span=document.createElement("span"); span.textContent=initials(name); box.appendChild(span);
       }
-
-      els.imagePreview.removeAttribute("src");
-      els.imagePreviewWrap.classList.remove("show");
     }
 
-    els.postImageInput.addEventListener("change", () => {
-      const file = els.postImageInput.files?.[0] || null;
+    function applyTheme(theme){ document.documentElement.dataset.theme=theme; localStorage.setItem("minigram-theme",theme); els.themeBtn.textContent=theme==="dark"?"☀️":"🌙"; }
+    applyTheme(localStorage.getItem("minigram-theme") || (matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));
+    els.themeBtn.addEventListener("click",()=>applyTheme(document.documentElement.dataset.theme==="dark"?"light":"dark"));
 
-      if (!file) {
-        clearSelectedImage();
-        return;
-      }
+    function setAuthMode(mode){
+      authMode=mode; const signup=mode==="signup";
+      els.loginTab.classList.toggle("active",!signup); els.signupTab.classList.toggle("active",signup); els.usernameField.hidden=!signup;
+      els.modalTitle.textContent=signup?"회원가입":"로그인"; els.modalSub.textContent=signup?"닉네임, 이메일, 비밀번호로 새 계정을 만드세요.":"이메일과 비밀번호로 로그인하세요.";
+      els.submitAuthBtn.textContent=signup?"계정 만들기":"로그인"; els.passwordInput.autocomplete=signup?"new-password":"current-password"; setAuthStatus();
+    }
+    function openAuth(mode="login"){ setAuthMode(mode); els.authModal.classList.add("open"); setTimeout(()=> (mode==="signup"?els.usernameInput:els.emailInput).focus(),0); }
+    function closeAuth(){ els.authModal.classList.remove("open"); setAuthStatus(); }
+    els.authBtn.addEventListener("click",()=>openAuth("login")); els.guestLoginBtn.addEventListener("click",()=>openAuth("signup")); els.closeModalBtn.addEventListener("click",closeAuth);
+    els.loginTab.addEventListener("click",()=>setAuthMode("login")); els.signupTab.addEventListener("click",()=>setAuthMode("signup")); els.authModal.addEventListener("click",e=>{if(e.target===els.authModal)closeAuth();});
 
-      if (!file.type.startsWith("image/")) {
-        setStatus("이미지 파일만 업로드할 수 있습니다.", true);
-        clearSelectedImage();
-        return;
-      }
+    async function submitAuth(){
+      const email=els.emailInput.value.trim(), password=els.passwordInput.value, username=els.usernameInput.value.trim();
+      if(!email||!password) return setAuthStatus("이메일과 비밀번호를 입력하세요.",true);
+      if(password.length<6) return setAuthStatus("비밀번호는 6자 이상으로 입력하세요.",true);
+      if(authMode==="signup" && username.length<2) return setAuthStatus("닉네임은 2자 이상 입력하세요.",true);
+      els.submitAuthBtn.disabled=true; setAuthStatus(authMode==="signup"?"계정을 만드는 중...":"로그인 중...");
+      let result;
+      if(authMode==="signup") result=await supabase.auth.signUp({email,password,options:{data:{username}}});
+      else result=await supabase.auth.signInWithPassword({email,password});
+      els.submitAuthBtn.disabled=false;
+      if(result.error) return setAuthStatus(result.error.message,true);
+      if(authMode==="signup" && !result.data?.session) return setAuthStatus("가입 완료! 이메일 인증이 켜져 있다면 인증 후 로그인하세요.");
+      closeAuth();
+    }
+    els.submitAuthBtn.addEventListener("click",submitAuth); els.passwordInput.addEventListener("keydown",e=>{if(e.key==="Enter")submitAuth();});
+    els.logoutBtn.addEventListener("click",()=>supabase.auth.signOut());
 
-      if (file.size > MAX_IMAGE_BYTES) {
-        setStatus("사진은 5MB 이하만 업로드할 수 있습니다.", true);
-        clearSelectedImage();
-        return;
-      }
+    async function loadMyProfile(){
+      if(!currentUser){ currentProfile=null; return; }
+      const {data,error}=await supabase.from("profiles").select("id, username, avatar_url").eq("id",currentUser.id).maybeSingle();
+      if(error) console.error(error);
+      currentProfile=data || {id:currentUser.id,username:currentUser.user_metadata?.username||"user",avatar_url:null};
+    }
 
-      selectedPostImage = file;
+    function renderSession(){
+      const loggedIn=Boolean(currentUser);
+      els.authBtn.hidden=loggedIn; els.logoutBtn.hidden=!loggedIn; els.profilePanel.hidden=!loggedIn; els.guestPanel.hidden=loggedIn;
+      els.roomLoggedOut.hidden=loggedIn; els.roomLoggedIn.hidden=!loggedIn;
+      els.guestPostName.hidden=loggedIn; els.guestPostPassword.hidden=loggedIn;
+      if(loggedIn){
+        const name=currentProfile?.username||"user"; els.sideUsername.textContent=name; els.sideEmail.textContent=currentUser.email||"";
+        setAvatar(els.sideAvatar,name,currentProfile?.avatar_url); setAvatar(els.composerAvatar,name,currentProfile?.avatar_url);
+      } else setAvatar(els.composerAvatar,"?",null);
+      updateComposerAvailability();
+    }
 
-      if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
-      previewObjectUrl = URL.createObjectURL(file);
-      els.imagePreview.src = previewObjectUrl;
-      els.imagePreviewWrap.classList.add("show");
-      setStatus();
+    function openTab(tabName){
+      document.querySelectorAll(".app-view").forEach(v=>v.classList.toggle("active",v.id===`view-${tabName}`));
+      document.querySelectorAll(".bottom-nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tabName));
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+    document.querySelectorAll(".bottom-nav button").forEach(b=>b.addEventListener("click",()=>{openTab(b.dataset.tab);if(b.dataset.tab==="feed")loadFeed();if(b.dataset.tab==="profile")loadProfileFeed();}));
+
+    // ---------- 친구방 ----------
+    async function loadRooms(preferredRoomId=null){
+      rooms=[]; currentRoom=null;
+      if(!currentUser){ currentRoomId=null; renderRooms(); return; }
+      const {data,error}=await supabase.from("room_members").select(`room_id, role, joined_at, rooms ( id, name, invite_code, owner_id, created_at )`).eq("user_id",currentUser.id).order("joined_at",{ascending:true});
+      if(error){ console.error(error); setRoomStatus("방 목록 오류: "+error.message,true); renderRooms(); return; }
+      rooms=(data||[]).map(r=>({...r.rooms,myRole:r.role})).filter(r=>r.id);
+      const saved=preferredRoomId || localStorage.getItem(`minigram-room-${currentUser.id}`);
+      currentRoomId=(saved && rooms.some(r=>r.id===saved)) ? saved : (rooms[0]?.id||null);
+      currentRoom=rooms.find(r=>r.id===currentRoomId)||null;
+      if(currentRoomId) localStorage.setItem(`minigram-room-${currentUser.id}`,currentRoomId);
+      renderRooms();
+      await loadRoomMembers();
+    }
+
+    function renderRooms(){
+      if(!currentUser) return;
+      els.roomSelect.innerHTML="";
+      if(!rooms.length){ const o=document.createElement("option"); o.value=""; o.textContent="아직 참여한 방이 없어"; els.roomSelect.appendChild(o); }
+      else rooms.forEach(r=>{ const o=document.createElement("option"); o.value=r.id; o.textContent=`${r.name}${r.myRole==="admin"?" · 관리자":""}`; o.selected=r.id===currentRoomId; els.roomSelect.appendChild(o); });
+      const has=Boolean(currentRoom);
+      els.currentRoomArea.hidden=!has;
+      if(!has){ setRoomStatus("방을 만들거나 초대코드로 참여하면 모임 피드가 열려."); updateComposerAvailability(); return; }
+      els.currentRoomName.textContent=currentRoom.name; els.currentInviteCode.textContent=currentRoom.invite_code; els.adminRoomName.value=currentRoom.name;
+      els.adminPanel.hidden=!currentRoomIsAdmin(); els.memberRoomActions.hidden=currentRoomIsAdmin();
+      const isOwner=currentRoom.owner_id===currentUser.id;
+      els.leaveRoomBtn.hidden=isOwner; els.deleteRoomBtn.hidden=!isOwner;
+      updateComposerAvailability();
+    }
+
+    els.roomSelect.addEventListener("change",async()=>{
+      currentRoomId=els.roomSelect.value||null; currentRoom=rooms.find(r=>r.id===currentRoomId)||null; activeMemoryFilter="";
+      if(currentRoomId) localStorage.setItem(`minigram-room-${currentUser.id}`,currentRoomId);
+      renderRooms(); await loadRoomMembers(); await loadFeed(); await loadCapsules(); await loadProfileFeed();
     });
 
-    els.clearImageBtn.addEventListener("click", clearSelectedImage);
-
-    function safeFileExtension(file) {
-      const raw = file.name.split(".").pop()?.toLowerCase() || "";
-      const allowed = ["jpg", "jpeg", "png", "webp", "gif"];
-      if (allowed.includes(raw)) return raw;
-
-      const byMime = {
-        "image/jpeg": "jpg",
-        "image/png": "png",
-        "image/webp": "webp",
-        "image/gif": "gif"
-      };
-
-      return byMime[file.type] || "jpg";
-    }
-
-    async function uploadPostImage(file) {
-      if (!file) return null;
-
-      const ext = safeFileExtension(file);
-      const folder = currentUser ? `users/${currentUser.id}` : "guests";
-      const filename =
-        `${Date.now()}-${crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}.${ext}`;
-      const path = `${folder}/${filename}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("post-images")
-        .upload(path, file, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage
-        .from("post-images")
-        .getPublicUrl(path);
-
-      return data.publicUrl;
-    }
-
-    // ---------- 글 작성 ----------
-    async function createPost() {
-      const content = els.postInput.value.trim();
-      const guestName = els.guestPostName.value.trim();
-      const guestPassword = els.guestPostPassword.value;
-      const postType = composerMode;
-      const unlockAtRaw = els.capsuleUnlockAt.value;
-      const memoryTitle = els.memoryTitleInput.value.trim();
-
-      if (!content && !selectedPostImage) {
-        setStatus("글 내용이나 사진 중 하나는 있어야 합니다.", true);
-        els.postInput.focus();
-        return;
-      }
-
-      if (!currentUser && guestName.length < 2) {
-        setStatus("비로그인 글은 닉네임을 2자 이상 입력하세요.", true);
-        els.guestPostName.focus();
-        return;
-      }
-
-      if (!currentUser && guestPassword.length < 4) {
-        setStatus("비로그인 글 비밀번호는 4자 이상 입력하세요.", true);
-        els.guestPostPassword.focus();
-        return;
-      }
-
-      if (postType === "capsule") {
-        if (!unlockAtRaw) {
-          setStatus("타임캡슐 공개 날짜와 시간을 선택하세요.", true);
-          return;
-        }
-        if (new Date(unlockAtRaw) <= new Date()) {
-          setStatus("타임캡슐 공개 시간은 현재보다 뒤여야 합니다.", true);
-          return;
-        }
-      }
-
-      if (postType === "memory" && memoryTitle.length < 2) {
-        setStatus("공동추억 이름을 2자 이상 입력하세요.", true);
-        els.memoryTitleInput.focus();
-        return;
-      }
-
-      els.postBtn.disabled = true;
-      setStatus(selectedPostImage ? "사진 업로드 중..." : "게시 중...");
-
-      let imageUrl = null;
-
-      try {
-        if (selectedPostImage) {
-          imageUrl = await uploadPostImage(selectedPostImage);
-        }
-      } catch (e) {
-        console.error(e);
-        els.postBtn.disabled = false;
-        setStatus("사진 업로드 오류: " + (e.message || "업로드에 실패했습니다."), true);
-        return;
-      }
-
-      setStatus("게시 중...");
-      let error = null;
-
-      if (currentUser) {
-        const result = await supabase
-          .from("posts")
-          .insert({
-            user_id: currentUser.id,
-            guest_name: null,
-            content: content || "",
-            image_url: imageUrl,
-            post_type: postType,
-            unlock_at: postType === "capsule" ? new Date(unlockAtRaw).toISOString() : null,
-            memory_title: postType === "memory" ? memoryTitle : null,
-            daily_key: postType === "daily" ? todayKey() : null,
-            daily_question: postType === "daily" ? currentDailyQuestion : null
-          });
-        error = result.error;
-      } else {
-        const result = await supabase.rpc("create_guest_post", {
-          p_guest_name: guestName,
-          p_password: guestPassword,
-          p_content: content || "",
-          p_image_url: imageUrl,
-          p_post_type: postType,
-          p_unlock_at: postType === "capsule" ? new Date(unlockAtRaw).toISOString() : null,
-          p_memory_title: postType === "memory" ? memoryTitle : null,
-          p_daily_key: postType === "daily" ? todayKey() : null,
-          p_daily_question: postType === "daily" ? currentDailyQuestion : null
-        });
-        error = result.error;
-      }
-
-      els.postBtn.disabled = false;
-
-      if (error) {
-        console.error(error);
-        setStatus("게시 오류: " + error.message, true);
-        return;
-      }
-
-      els.postInput.value = "";
-      if (!currentUser) {
-        els.guestPostName.value = "";
-        els.guestPostPassword.value = "";
-      }
-      clearSelectedImage();
-      els.capsuleUnlockAt.value = "";
-      els.memoryTitleInput.value = "";
-      setComposerMode("normal");
-      setStatus(postType === "capsule" ? "타임캡슐을 보관했어요." : "게시했습니다.");
-      await loadFeed();
-      if (postType === "capsule") {
-        await loadCapsules();
-        openTab("capsules");
-      }
-    }
-
-    els.postBtn.addEventListener("click", createPost);
-    els.postInput.addEventListener("keydown", e => {
-      if (e.key === "Enter" && !e.shiftKey) {
-        e.preventDefault();
-        createPost();
-      }
+    els.roomCreateBtn.addEventListener("click",async()=>{
+      const name=els.roomCreateName.value.trim(); if(name.length<2) return setRoomStatus("방 이름을 2자 이상 입력해줘.",true);
+      els.roomCreateBtn.disabled=true; setRoomStatus("방 만드는 중...");
+      const {data,error}=await supabase.rpc("create_room",{p_name:name}); els.roomCreateBtn.disabled=false;
+      if(error) return setRoomStatus("방 생성 오류: "+error.message,true);
+      const id=Array.isArray(data)?data[0]?.room_id:null; els.roomCreateName.value=""; await loadRooms(id); await loadFeed(); await loadCapsules(); await loadProfileFeed(); setRoomStatus("방을 만들었어. 초대코드를 친구에게 공유해줘.");
     });
 
-    async function editPost(id, oldContent, isGuest = false) {
-      const content = prompt("글을 수정하세요.", oldContent);
-      if (content === null) return;
+    els.roomJoinBtn.addEventListener("click",async()=>{
+      const code=els.roomJoinCode.value.trim(); if(!code) return setRoomStatus("초대코드를 입력해줘.",true);
+      els.roomJoinBtn.disabled=true; setRoomStatus("방 참여 중..."); const {data,error}=await supabase.rpc("join_room",{p_invite_code:code}); els.roomJoinBtn.disabled=false;
+      if(error) return setRoomStatus("참여 오류: "+error.message,true);
+      els.roomJoinCode.value=""; await loadRooms(data); await loadFeed(); await loadCapsules(); await loadProfileFeed(); setRoomStatus("방에 참여했어.");
+    });
 
-      const trimmed = content.trim();
-      if (!trimmed) {
-        setStatus("글 내용은 비워둘 수 없습니다.", true);
-        return;
-      }
+    els.copyInviteBtn.addEventListener("click",async()=>{
+      if(!currentRoom) return; try{ await navigator.clipboard.writeText(currentRoom.invite_code); setRoomStatus("초대코드를 복사했어."); }catch{ setRoomStatus(`초대코드: ${currentRoom.invite_code}`); }
+    });
 
-      let error = null;
-
-      if (isGuest) {
-        const password = prompt("작성할 때 입력한 비밀번호를 입력하세요.");
-        if (password === null) return;
-
-        const result = await supabase.rpc("update_guest_post", {
-          p_post_id: id,
-          p_password: password,
-          p_content: trimmed
-        });
-
-        error = result.error;
-        if (!error && result.data !== true) {
-          setStatus("비밀번호가 맞지 않거나 수정할 수 없는 글입니다.", true);
-          return;
-        }
-      } else {
-        if (!currentUser) return;
-
-        const result = await supabase
-          .from("posts")
-          .update({ content: trimmed })
-          .eq("id", id);
-        error = result.error;
-      }
-
-      if (error) {
-        console.error(error);
-        setStatus("수정 오류: " + error.message, true);
-        return;
-      }
-
-      setStatus("글을 수정했습니다.");
-      await loadFeed();
+    async function loadRoomMembers(){
+      roomMembers=[]; els.roomMemberList.innerHTML=""; if(!currentRoomId||!currentUser) return;
+      const {data,error}=await supabase.from("room_members").select(`user_id, role, joined_at, profiles ( username, avatar_url )`).eq("room_id",currentRoomId).order("joined_at",{ascending:true});
+      if(error){ console.error(error); els.roomMemberList.textContent="멤버 목록 오류"; return; }
+      roomMembers=data||[]; renderRoomMembers();
     }
 
-    async function deletePost(id, isGuest = false) {
-      if (!confirm("이 글을 삭제할까요?")) return;
-
-      let error = null;
-
-      if (isGuest) {
-        const password = prompt("작성할 때 입력한 비밀번호를 입력하세요.");
-        if (password === null) return;
-
-        const result = await supabase.rpc("delete_guest_post", {
-          p_post_id: id,
-          p_password: password
-        });
-
-        error = result.error;
-        if (!error && result.data !== true) {
-          setStatus("비밀번호가 맞지 않거나 삭제할 수 없는 글입니다.", true);
-          return;
-        }
-      } else {
-        if (!currentUser) return;
-
-        const result = await supabase
-          .from("posts")
-          .delete()
-          .eq("id", id);
-        error = result.error;
-      }
-
-      if (error) {
-        console.error(error);
-        setStatus("삭제 오류: " + error.message, true);
-        return;
-      }
-
-      setStatus("삭제했습니다.");
-      await loadFeed();
-    }
-
-    async function editComment(id, oldContent, isGuest = false) {
-      const content = prompt("댓글을 수정하세요.", oldContent);
-      if (content === null) return;
-
-      const trimmed = content.trim();
-      if (!trimmed) {
-        alert("댓글 내용은 비워둘 수 없습니다.");
-        return;
-      }
-
-      let error = null;
-
-      if (isGuest) {
-        const password = prompt("댓글 작성 시 입력한 비밀번호를 입력하세요.");
-        if (password === null) return;
-
-        const result = await supabase.rpc("update_guest_comment", {
-          p_comment_id: id,
-          p_password: password,
-          p_content: trimmed
-        });
-
-        error = result.error;
-        if (!error && result.data !== true) {
-          alert("비밀번호가 맞지 않거나 수정할 수 없는 댓글입니다.");
-          return;
-        }
-      } else {
-        if (!currentUser) return;
-
-        const result = await supabase
-          .from("comments")
-          .update({ content: trimmed })
-          .eq("id", id);
-        error = result.error;
-      }
-
-      if (error) {
-        console.error(error);
-        alert("댓글 수정 오류: " + error.message);
-        return;
-      }
-
-      await loadFeed();
-    }
-
-    async function deleteComment(id, isGuest = false) {
-      if (!confirm("이 댓글을 삭제할까요?")) return;
-
-      let error = null;
-
-      if (isGuest) {
-        const password = prompt("댓글 작성 시 입력한 비밀번호를 입력하세요.");
-        if (password === null) return;
-
-        const result = await supabase.rpc("delete_guest_comment", {
-          p_comment_id: id,
-          p_password: password
-        });
-
-        error = result.error;
-        if (!error && result.data !== true) {
-          alert("비밀번호가 맞지 않거나 삭제할 수 없는 댓글입니다.");
-          return;
-        }
-      } else {
-        if (!currentUser) return;
-
-        const result = await supabase
-          .from("comments")
-          .delete()
-          .eq("id", id);
-        error = result.error;
-      }
-
-      if (error) {
-        console.error(error);
-        alert("댓글 삭제 오류: " + error.message);
-        return;
-      }
-
-      await loadFeed();
-    }
-
-    async function createComment(postId, input, nameInput, passwordInput) {
-      const content = input.value.trim();
-      const guestName = nameInput?.value.trim() || "";
-      const guestPassword = passwordInput?.value || "";
-
-      if (!content) return;
-
-      if (!currentUser && guestName.length < 2) {
-        alert("비로그인 댓글은 닉네임을 2자 이상 입력하세요.");
-        nameInput?.focus();
-        return;
-      }
-
-      if (!currentUser && guestPassword.length < 4) {
-        alert("비로그인 댓글 비밀번호는 4자 이상 입력하세요.");
-        passwordInput?.focus();
-        return;
-      }
-
-      let error = null;
-
-      if (currentUser) {
-        const result = await supabase
-          .from("comments")
-          .insert({
-            post_id: postId,
-            user_id: currentUser.id,
-            guest_name: null,
-            content
-          });
-        error = result.error;
-      } else {
-        const result = await supabase.rpc("create_guest_comment", {
-          p_post_id: postId,
-          p_guest_name: guestName,
-          p_password: guestPassword,
-          p_content: content
-        });
-        error = result.error;
-      }
-
-      if (error) {
-        console.error(error);
-        alert("댓글 오류: " + error.message);
-        return;
-      }
-
-      input.value = "";
-      if (nameInput) nameInput.value = "";
-      if (passwordInput) passwordInput.value = "";
-      await loadFeed();
-    }
-
-    // ---------- 피드 ----------
-    async function loadFeed() {
-      els.feedList.innerHTML = '<div class="card empty">피드를 불러오는 중...</div>';
-
-      const { data, error } = await supabase
-        .from("posts")
-        .select(`
-          id,
-          content,
-          image_url,
-          post_type,
-          unlock_at,
-          memory_title,
-          daily_key,
-          daily_question,
-          created_at,
-          user_id,
-          guest_name,
-          profiles (
-            username
-          ),
-          comments (
-            id,
-            content,
-            created_at,
-            user_id,
-            guest_name,
-            profiles (
-              username
-            )
-          )
-        `)
-        .order("created_at", { ascending: false })
-        .limit(100);
-
-      if (error) {
-        console.error(error);
-        els.feedList.innerHTML =
-          `<div class="card empty">피드 오류<br>${error.message}</div>`;
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        els.feedList.innerHTML =
-          '<div class="card empty">아직 글이 없어요.<br>첫 번째 글을 남겨보세요.</div>';
-        return;
-      }
-
-      const now = new Date();
-      memoryReturnPool = data.filter(p => {
-        const age = now - new Date(p.created_at);
-        return age > 7 * 86400000 && p.post_type !== "capsule";
-      });
-      renderMemoryReturn();
-      renderMemoryAlbums(data);
-      updateCapsuleDashboard([...(data || []), ...capsuleMetadataCache]);
-
-      const visibleData = activeMemoryFilter
-        ? data.filter(p => p.memory_title === activeMemoryFilter)
-        : data;
-
-      els.feedList.innerHTML = "";
-
-      for (const post of visibleData) {
-        const isGuestPost = !post.user_id;
-        const username = isGuestPost
-          ? (post.guest_name || "익명")
-          : (post.profiles?.username || "user");
-        const mine = Boolean(currentUser && post.user_id === currentUser.id);
-
-        const article = document.createElement("article");
-        article.className = "card feed-card";
-
-        const head = document.createElement("div");
-        head.className = "post-head";
-
-        const avatar = document.createElement("div");
-        avatar.className = "avatar";
-        const avatarInner = document.createElement("span");
-        avatarInner.textContent = initials(username);
-        avatar.appendChild(avatarInner);
-
-        const who = document.createElement("div");
-        who.className = "who";
-
-        const name = document.createElement("div");
-        name.className = "username";
-        name.textContent = username;
-        if (isGuestPost) {
-          const badge = document.createElement("span");
-          badge.className = "guest-badge";
-          badge.textContent = "guest";
-          name.appendChild(badge);
-        }
-
-        if (post.post_type && post.post_type !== "normal") {
-          const typeBadge = document.createElement("span");
-          typeBadge.className = `post-type-badge ${post.post_type}`;
-          const labels = {
-            daily: "오늘답변",
-            capsule: "타임캡슐",
-            memory: post.memory_title || "공동추억"
-          };
-          typeBadge.textContent = labels[post.post_type] || post.post_type;
-          name.appendChild(typeBadge);
-        }
-
-        const time = document.createElement("div");
-        time.className = "time";
-        time.textContent = formatDate(post.created_at);
-
-        who.append(name, time);
-        head.append(avatar, who);
-
-        let imageWrap = null;
-        if (post.image_url) {
-          imageWrap = document.createElement("div");
-          imageWrap.className = "post-image-wrap";
-
-          const image = document.createElement("img");
-          image.className = "post-image";
-          image.src = post.image_url;
-          image.alt = `${username}님의 게시물 사진`;
-          image.loading = "lazy";
-
-          imageWrap.appendChild(image);
-        }
-
-        const body = document.createElement("div");
-        body.className = "post-body";
-        body.textContent = escapeText(post.content);
-        if (!post.content) body.hidden = true;
-
-        let dailyContext = null;
-        if (post.post_type === "daily") {
-          dailyContext = document.createElement("div");
-          dailyContext.className = "daily-context";
-          const question = post.daily_question || "오늘의 질문";
-          dailyContext.innerHTML = `<strong>🔥 이 답변의 질문</strong>${escapeText(question)}`;
-        }
-
-        const isLockedCapsule =
-          post.post_type === "capsule" &&
-          post.unlock_at &&
-          new Date(post.unlock_at) > new Date() &&
-          !(currentUser && currentUser.id === post.user_id);
-
-        if (isLockedCapsule) {
-          if (imageWrap) imageWrap.style.display = "none";
-          body.hidden = true;
-        }
-
-        const lockedBox = document.createElement("div");
-        if (isLockedCapsule) {
-          lockedBox.className = "locked-post";
-          const openAt = new Date(post.unlock_at).toLocaleString("ko-KR");
-          lockedBox.innerHTML = `<strong>🔒 아직 열리지 않은 타임캡슐</strong>${openAt}에 공개돼요.`;
-        }
-
-        const actions = document.createElement("div");
-        actions.className = "post-actions";
-
-        const label = document.createElement("span");
-        const commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
-        label.textContent = `댓글 ${commentCount}개`;
-        actions.appendChild(label);
-
-        if (mine || isGuestPost) {
-          const ownerActions = document.createElement("div");
-          ownerActions.className = "post-owner-actions";
-
-          const edit = document.createElement("button");
-          edit.className = "edit-btn";
-          edit.textContent = "수정";
-          edit.addEventListener("click", () => editPost(post.id, post.content, isGuestPost));
-
-          const del = document.createElement("button");
-          del.className = "delete-btn";
-          del.textContent = "삭제";
-          del.addEventListener("click", () => deletePost(post.id, isGuestPost));
-
-          ownerActions.append(edit, del);
-          actions.appendChild(ownerActions);
-        }
-
-        const commentsBox = document.createElement("div");
-        commentsBox.className = "comments";
-
-        const commentList = document.createElement("div");
-        commentList.className = "comment-list";
-
-        const comments = Array.isArray(post.comments)
-          ? [...post.comments].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-          : [];
-
-        for (const comment of comments) {
-          const row = document.createElement("div");
-          row.className = "comment-item";
-
-          const cUser = comment.user_id
-            ? (comment.profiles?.username || "user")
-            : (comment.guest_name || "익명");
-
-          const strong = document.createElement("strong");
-          strong.textContent = cUser;
-
-          const text = document.createElement("span");
-          text.textContent = comment.content;
-
-          const cTime = document.createElement("span");
-          cTime.className = "comment-time";
-          cTime.textContent = formatDate(comment.created_at);
-
-          row.append(strong, text, cTime);
-
-          const isGuestComment = !comment.user_id;
-          const mineComment = Boolean(currentUser && comment.user_id === currentUser.id);
-
-          if (isGuestComment || mineComment) {
-            const cActions = document.createElement("span");
-            cActions.className = "comment-owner-actions";
-
-            const cEdit = document.createElement("button");
-            cEdit.className = "comment-edit-btn";
-            cEdit.textContent = "수정";
-            cEdit.addEventListener("click", () =>
-              editComment(comment.id, comment.content, isGuestComment)
-            );
-
-            const cDelete = document.createElement("button");
-            cDelete.className = "comment-delete-btn";
-            cDelete.textContent = "삭제";
-            cDelete.addEventListener("click", () =>
-              deleteComment(comment.id, isGuestComment)
-            );
-
-            cActions.append(cEdit, cDelete);
-            row.appendChild(cActions);
+    function renderRoomMembers(){
+      els.roomMemberList.innerHTML="";
+      for(const m of roomMembers){
+        const row=document.createElement("div"); row.className="member-row";
+        const av=document.createElement("div"); av.className="avatar"; setAvatar(av,m.profiles?.username||"user",m.profiles?.avatar_url);
+        const info=document.createElement("div"); info.className="member-info";
+        const n=document.createElement("strong"); n.textContent=(m.profiles?.username||"user")+(m.user_id===currentUser.id?" (나)":"");
+        const role=document.createElement("span"); role.textContent=m.user_id===currentRoom?.owner_id?"방장 · 관리자":(m.role==="admin"?"관리자":"멤버"); info.append(n,role); row.append(av,info);
+        if(currentRoomIsAdmin() && m.user_id!==currentRoom?.owner_id){
+          const acts=document.createElement("div"); acts.className="member-actions";
+          if(currentRoom?.owner_id===currentUser.id){
+            const roleBtn=document.createElement("button"); roleBtn.className="tiny-btn"; roleBtn.textContent=m.role==="admin"?"관리자 해제":"관리자 지정";
+            roleBtn.addEventListener("click",()=>changeMemberRole(m.user_id,m.role==="admin"?"member":"admin")); acts.appendChild(roleBtn);
           }
-
-          commentList.appendChild(row);
+          if(m.role!=="admin" || currentRoom?.owner_id===currentUser.id){
+            const rm=document.createElement("button"); rm.className="tiny-btn danger"; rm.textContent="내보내기"; rm.addEventListener("click",()=>removeMember(m.user_id,m.profiles?.username||"멤버")); acts.appendChild(rm);
+          }
+          row.appendChild(acts);
         }
-
-        const form = document.createElement("div");
-        form.className = "comment-form";
-
-        let commentNameInput = null;
-        let commentPasswordInput = null;
-
-        if (!currentUser) {
-          const guestCredentials = document.createElement("div");
-          guestCredentials.className = "comment-guest-credentials";
-
-          commentNameInput = document.createElement("input");
-          commentNameInput.className = "comment-name";
-          commentNameInput.maxLength = 20;
-          commentNameInput.placeholder = "닉네임";
-
-          commentPasswordInput = document.createElement("input");
-          commentPasswordInput.className = "comment-password";
-          commentPasswordInput.type = "password";
-          commentPasswordInput.minLength = 4;
-          commentPasswordInput.maxLength = 50;
-          commentPasswordInput.placeholder = "비밀번호";
-
-          guestCredentials.append(commentNameInput, commentPasswordInput);
-          form.appendChild(guestCredentials);
-        }
-
-        const commentInput = document.createElement("input");
-        commentInput.className = "comment-input";
-        commentInput.maxLength = 300;
-        commentInput.placeholder = "댓글 달기...";
-
-        const commentBtn = document.createElement("button");
-        commentBtn.className = "comment-btn";
-        commentBtn.textContent = "게시";
-
-        const submitComment = () =>
-          createComment(post.id, commentInput, commentNameInput, commentPasswordInput);
-        commentBtn.addEventListener("click", submitComment);
-        commentInput.addEventListener("keydown", e => {
-          if (e.key === "Enter") submitComment();
-        });
-
-        const commentWriteRow = document.createElement("div");
-        commentWriteRow.className = "comment-write-row";
-        commentWriteRow.append(commentInput, commentBtn);
-
-        form.appendChild(commentWriteRow);
-        commentsBox.append(commentList, form);
-        if (isLockedCapsule) commentsBox.style.display = "none";
-
-        article.appendChild(head);
-        if (dailyContext) article.appendChild(dailyContext);
-        if (isLockedCapsule) {
-          article.appendChild(lockedBox);
-        } else {
-          if (imageWrap) article.appendChild(imageWrap);
-          article.appendChild(body);
-        }
-        article.append(actions, commentsBox);
-        els.feedList.appendChild(article);
+        els.roomMemberList.appendChild(row);
       }
     }
 
-    async function refreshSession(session) {
-      currentUser = session?.user || null;
-      await loadMyProfile();
-      renderSession();
-      await loadFeed();
-      await loadCapsules();
+    async function changeMemberRole(userId,role){
+      const {data,error}=await supabase.rpc("set_room_member_role",{p_room_id:currentRoomId,p_user_id:userId,p_role:role});
+      if(error||data!==true) return setRoomStatus("권한 변경에 실패했어."+(error?" "+error.message:""),true); await loadRoomMembers(); setRoomStatus("멤버 권한을 변경했어.");
+    }
+    async function removeMember(userId,name){
+      if(!confirm(`${name}님을 이 방에서 내보낼까요?`)) return;
+      const {data,error}=await supabase.rpc("remove_room_member",{p_room_id:currentRoomId,p_user_id:userId});
+      if(error||data!==true) return setRoomStatus("내보내기에 실패했어."+(error?" "+error.message:""),true); await loadRoomMembers(); setRoomStatus("멤버를 내보냈어.");
     }
 
-    const { data: sessionData } = await supabase.auth.getSession();
-    await refreshSession(sessionData.session);
-
-    supabase.auth.onAuthStateChange(async (_event, session) => {
-      // Supabase auth 콜백 내부에서 후속 네트워크 요청을 너무 많이 엮지 않도록
-      // 다음 틱에서 갱신.
-      setTimeout(() => refreshSession(session), 0);
+    els.renameRoomBtn.addEventListener("click",async()=>{
+      if(!currentRoomId) return; const name=els.adminRoomName.value.trim();
+      const {data,error}=await supabase.rpc("update_room_name",{p_room_id:currentRoomId,p_name:name});
+      if(error||data!==true) return setRoomStatus("방 이름 변경 실패: "+(error?.message||"권한 없음"),true); await loadRooms(currentRoomId); setRoomStatus("방 이름을 바꿨어.");
     });
+    els.regenInviteBtn.addEventListener("click",async()=>{
+      if(!confirm("기존 초대코드는 더 이상 사용할 수 없게 돼. 새로 발급할까?")) return;
+      const {data,error}=await supabase.rpc("regenerate_room_invite",{p_room_id:currentRoomId}); if(error) return setRoomStatus("재발급 오류: "+error.message,true);
+      await loadRooms(currentRoomId); setRoomStatus(`새 초대코드: ${data}`);
+    });
+    async function cleanupRoomStorage(roomId){
+      const bucket=supabase.storage.from("room-post-images"), base=`rooms/${roomId}`;
+      const {data:level1,error}=await bucket.list(base,{limit:1000});
+      if(error){ console.error(error); return false; }
+      const paths=[];
+      for(const item of level1||[]){
+        if(item.id){ paths.push(`${base}/${item.name}`); continue; }
+        const {data:files,error:fileError}=await bucket.list(`${base}/${item.name}`,{limit:1000});
+        if(fileError){ console.error(fileError); return false; }
+        for(const f of files||[]) if(f.id) paths.push(`${base}/${item.name}/${f.name}`);
+      }
+      if(paths.length){ const {error:removeError}=await bucket.remove(paths); if(removeError){console.error(removeError);return false;} }
+      return true;
+    }
+
+    async function leaveCurrentRoom(){
+      if(!currentRoomId||!confirm("이 방에서 나갈까요?")) return; const old=currentRoomId;
+      const {data,error}=await supabase.rpc("leave_room",{p_room_id:old}); if(error||data!==true) return setRoomStatus("방 나가기 실패: "+(error?.message||""),true);
+      localStorage.removeItem(`minigram-room-${currentUser.id}`); await loadRooms(); await loadFeed(); await loadCapsules(); await loadProfileFeed(); setRoomStatus("방에서 나왔어.");
+    }
+    els.leaveRoomBtn.addEventListener("click",leaveCurrentRoom); els.memberLeaveRoomBtn.addEventListener("click",leaveCurrentRoom);
+    els.deleteRoomBtn.addEventListener("click",async()=>{
+      if(!currentRoomId||!confirm("방과 방 안의 게시물을 모두 삭제할까요? 이 작업은 되돌릴 수 없어.")) return;
+      setRoomStatus("방 사진을 정리하는 중...");
+      if(!(await cleanupRoomStorage(currentRoomId))) return setRoomStatus("모임 사진 정리에 실패했어. 다시 시도해줘.",true);
+      const {data,error}=await supabase.rpc("delete_room",{p_room_id:currentRoomId}); if(error||data!==true) return setRoomStatus("방 삭제 실패: "+(error?.message||""),true);
+      localStorage.removeItem(`minigram-room-${currentUser.id}`); await loadRooms(); await loadFeed(); await loadCapsules(); await loadProfileFeed(); setRoomStatus("방을 삭제했어.");
+    });
+
+    // ---------- 질문 / 작성 모드 ----------
+    function renderDailyQuestion(){ currentDailyQuestion=getDailyQuestion(); els.dailyQuestionText.textContent=currentDailyQuestion; }
+    function setComposerContext(title,text){ els.composerContext.innerHTML=""; if(!title&&!text){els.composerContext.classList.remove("show");return;} const b=document.createElement("strong"); b.textContent=title; els.composerContext.appendChild(b); if(text){els.composerContext.appendChild(document.createElement("br")); els.composerContext.appendChild(document.createTextNode(text));} els.composerContext.classList.add("show"); }
+    function setComposerMode(mode){
+      composerMode=mode; document.querySelectorAll(".composer-mode-tabs button").forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
+      els.capsuleFields.classList.toggle("show",mode==="capsule"); els.memoryFields.classList.toggle("show",mode==="memory");
+      if(mode==="daily"){setComposerContext("🔥 오늘의 질문",currentDailyQuestion||getDailyQuestion());els.postInput.placeholder="이 질문에 대한 답을 남겨봐...";els.feedContextText.textContent="오늘의 질문과 답변이 함께 저장돼.";}
+      else if(mode==="capsule"){setComposerContext("⏳ 타임캡슐","공개 날짜 전에는 내용과 사진이 잠겨.");els.postInput.placeholder="미래의 우리에게 남길 말을 써봐...";els.feedContextText.textContent="타임캡슐 작성 중";}
+      else if(mode==="memory"){setComposerContext("📸 공동추억","직접 이름을 쓰거나 기존 추억 폴더를 골라 확인해.");els.postInput.placeholder="이 추억에 남길 이야기를 써봐...";els.feedContextText.textContent="공동추억 작성 중";renderMemoryComposerSuggestions();}
+      else {setComposerContext("","");els.postInput.placeholder=currentUser?"우리 방에 남길 이야기를 써봐...":"로그인 없이도 공개 글을 남길 수 있어요";els.feedContextText.textContent="글, 사진, 댓글은 여기에서 확인해.";}
+      updateComposerAvailability();
+    }
+    document.querySelectorAll(".composer-mode-tabs button").forEach(b=>b.addEventListener("click",()=>setComposerMode(b.dataset.mode)));
+    els.answerDailyBtn.addEventListener("click",()=>{activeMemoryFilter="";openTab("feed");setComposerMode("daily");setTimeout(()=>els.postInput.focus(),50);});
+    els.makeCapsuleBtn.addEventListener("click",()=>{activeMemoryFilter="";openTab("feed");setComposerMode("capsule");setTimeout(()=>els.capsuleTitleInput.focus(),50);});
+    els.homeGoFeedBtn.addEventListener("click",()=>{activeMemoryFilter="";openTab("feed");setComposerMode("normal");setTimeout(()=>els.postInput.focus(),50);});
+    els.memoryGoFeedBtn.addEventListener("click",()=>{openTab("feed");setComposerMode("memory");els.memoryTitleInput.value=activeMemoryFilter||"";setTimeout(()=>els.memoryTitleInput.focus(),50);});
+    els.memoryViewFolderBtn.addEventListener("click",()=>{openTab("feed");setComposerMode("normal");loadFeed();});
+
+    function updateComposerAvailability(){
+      const roomRequired=Boolean(currentUser && !currentRoomId); const disabled=roomRequired;
+      els.postInput.disabled=disabled; els.postBtn.disabled=disabled; els.postImageInput.disabled=disabled;
+      document.querySelectorAll(".composer-mode-tabs button").forEach(b=>b.disabled=disabled);
+      if(currentUser){ els.feedRoomBadge.textContent=currentRoom?`🏠 ${currentRoom.name}`:"방을 먼저 만들거나 참여해줘"; }
+      else els.feedRoomBadge.textContent="🌐 비로그인 레거시 공개 피드";
+      if(roomRequired) setStatus("모임 기록을 쓰려면 홈에서 방을 만들거나 초대코드로 참여해줘.");
+    }
+
+    // ---------- 공동추억 ----------
+    function renderMemoryReturn(){
+      if(!memoryReturnPool.length){els.memoryReturnPreview.textContent="아직 되돌려볼 오래된 추억이 없어. 글이 쌓이면 여기서 다시 나타나.";return;}
+      const p=memoryReturnPool[memoryReturnIndex%memoryReturnPool.length], who=p.profiles?.username||p.guest_name||"우리", text=p.content?.trim()||"📸 사진으로 남긴 추억";
+      els.memoryReturnPreview.textContent=`${who} · ${formatDate(p.created_at)}\n${text.slice(0,140)}${text.length>140?"…":""}`;
+    }
+    els.refreshMemoryBtn.addEventListener("click",()=>{if(memoryReturnPool.length){memoryReturnIndex=(memoryReturnIndex+1)%memoryReturnPool.length;renderMemoryReturn();}});
+    function selectMemory(title){ activeMemoryFilter=title||""; renderMemoryAlbums(feedCache); }
+    function renderMemoryAlbums(posts){
+      memoryNames=[...new Set((posts||[]).map(p=>p.memory_title).filter(Boolean))].slice(0,30); els.memoryAlbumStrip.innerHTML=""; els.memoryTitleOptions.innerHTML="";
+      const values=["",...memoryNames]; for(const title of values){ const chip=document.createElement("button"); chip.className="memory-chip"+(activeMemoryFilter===title?" active":""); chip.textContent=title||"전체"; chip.addEventListener("click",()=>selectMemory(title)); els.memoryAlbumStrip.appendChild(chip); }
+      for(const title of memoryNames){const o=document.createElement("option");o.value=title;els.memoryTitleOptions.appendChild(o);} els.memorySelectedText.textContent=`선택: ${activeMemoryFilter||"전체"}`; renderMemoryComposerSuggestions();
+    }
+    function renderMemoryComposerSuggestions(){
+      els.memoryComposerSuggestions.innerHTML=""; if(composerMode!=="memory")return;
+      if(!memoryNames.length){const s=document.createElement("span");s.className="hint";s.textContent="기존 추억 폴더가 없어. 새 이름을 직접 입력해줘.";els.memoryComposerSuggestions.appendChild(s);return;}
+      memoryNames.slice(0,12).forEach(title=>{const b=document.createElement("button");b.type="button";b.className="memory-chip";b.textContent=title;b.addEventListener("click",()=>{els.memoryTitleInput.value=title;});els.memoryComposerSuggestions.appendChild(b);});
+    }
+
+    // ---------- 이미지 ----------
+    function clearSelectedImage(){selectedPostImage=null;els.postImageInput.value="";if(previewObjectUrl){URL.revokeObjectURL(previewObjectUrl);previewObjectUrl=null;}els.imagePreview.removeAttribute("src");els.imagePreviewWrap.classList.remove("show");}
+    function safeFileExtension(file){const raw=file.name.split(".").pop()?.toLowerCase()||"";if(["jpg","jpeg","png","webp","gif"].includes(raw))return raw;return ({"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/gif":"gif"})[file.type]||"jpg";}
+    els.postImageInput.addEventListener("change",()=>{const file=els.postImageInput.files?.[0];if(!file)return clearSelectedImage();if(!file.type.startsWith("image/")){setStatus("이미지 파일만 업로드할 수 있어.",true);return clearSelectedImage();}if(file.size>MAX_IMAGE_BYTES){setStatus("사진은 5MB 이하만 업로드할 수 있어.",true);return clearSelectedImage();}selectedPostImage=file;if(previewObjectUrl)URL.revokeObjectURL(previewObjectUrl);previewObjectUrl=URL.createObjectURL(file);els.imagePreview.src=previewObjectUrl;els.imagePreviewWrap.classList.add("show");setStatus();});
+    els.clearImageBtn.addEventListener("click",clearSelectedImage);
+
+    async function uploadPostImage(file){
+      if(!file)return null; const ext=safeFileExtension(file), filename=`${Date.now()}-${crypto.randomUUID?.()||Math.random().toString(36).slice(2)}.${ext}`;
+      if(currentUser&&currentRoomId){
+        const path=`rooms/${currentRoomId}/${currentUser.id}/${filename}`; const {error}=await supabase.storage.from("room-post-images").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type}); if(error)throw error; return `private:${path}`;
+      }
+      const folder=currentUser?`users/${currentUser.id}`:"guests", path=`${folder}/${filename}`; const {error}=await supabase.storage.from("post-images").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type}); if(error)throw error; return supabase.storage.from("post-images").getPublicUrl(path).data.publicUrl;
+    }
+    async function resolveImageUrl(value){ if(!value)return null; if(value.startsWith("private:")){const path=value.slice(8);const {data,error}=await supabase.storage.from("room-post-images").createSignedUrl(path,3600);if(error){console.error(error);return null;}return data.signedUrl;}return value; }
+    function publicStoragePath(url,bucket){const marker=`/storage/v1/object/public/${bucket}/`;const i=String(url||"").indexOf(marker);return i<0?null:decodeURIComponent(String(url).slice(i+marker.length));}
+    async function deleteStoredImage(value){if(!value)return; if(value.startsWith("private:")){await supabase.storage.from("room-post-images").remove([value.slice(8)]);return;}const path=publicStoragePath(value,"post-images");if(path)await supabase.storage.from("post-images").remove([path]);}
+
+    // ---------- 글 작성/수정/삭제 ----------
+    async function createPost(){
+      if(currentUser&&!currentRoomId)return setStatus("먼저 방을 만들거나 참여해줘.",true);
+      const content=els.postInput.value.trim(), guestName=els.guestPostName.value.trim(), guestPassword=els.guestPostPassword.value, postType=composerMode;
+      const unlockRaw=els.capsuleUnlockAt.value, memoryTitle=els.memoryTitleInput.value.trim(), capsuleTitle=els.capsuleTitleInput.value.trim();
+      if(!content&&!selectedPostImage)return setStatus("글 내용이나 사진 중 하나는 있어야 해.",true);
+      if(!currentUser&&guestName.length<2)return setStatus("비로그인 글은 닉네임을 2자 이상 입력해줘.",true);
+      if(!currentUser&&guestPassword.length<4)return setStatus("비로그인 글 비밀번호는 4자 이상 입력해줘.",true);
+      if(postType==="capsule"){
+        if(capsuleTitle.length<2)return setStatus("타임캡슐 이름을 2자 이상 입력해줘.",true);
+        if(!unlockRaw)return setStatus("공개 날짜와 시간을 선택해줘.",true); if(new Date(unlockRaw)<=new Date())return setStatus("공개 시간은 현재보다 뒤여야 해.",true);
+      }
+      if(postType==="memory"&&memoryTitle.length<2)return setStatus("공동추억 이름을 2자 이상 입력해줘.",true);
+      els.postBtn.disabled=true;setStatus(selectedPostImage?"사진 업로드 중...":"게시 중...");let imageUrl=null;
+      try{if(selectedPostImage)imageUrl=await uploadPostImage(selectedPostImage);}catch(e){els.postBtn.disabled=false;return setStatus("사진 업로드 오류: "+e.message,true);}
+      let error=null;
+      if(currentUser){
+        ({error}=await supabase.from("posts").insert({user_id:currentUser.id,guest_name:null,content:content||"",image_url:imageUrl,post_type:postType,unlock_at:postType==="capsule"?new Date(unlockRaw).toISOString():null,memory_title:postType==="memory"?memoryTitle:null,daily_key:postType==="daily"?todayKey():null,daily_question:postType==="daily"?currentDailyQuestion:null,room_id:currentRoomId,capsule_title:postType==="capsule"?capsuleTitle:null}));
+      }else{
+        ({error}=await supabase.rpc("create_guest_post",{p_guest_name:guestName,p_password:guestPassword,p_content:content||"",p_image_url:imageUrl,p_post_type:postType,p_unlock_at:postType==="capsule"?new Date(unlockRaw).toISOString():null,p_memory_title:postType==="memory"?memoryTitle:null,p_daily_key:postType==="daily"?todayKey():null,p_daily_question:postType==="daily"?currentDailyQuestion:null,p_capsule_title:postType==="capsule"?capsuleTitle:null}));
+      }
+      els.postBtn.disabled=false;
+      if(error){if(imageUrl)await deleteStoredImage(imageUrl);return setStatus("게시 오류: "+error.message,true);}
+      els.postInput.value="";if(!currentUser){els.guestPostName.value="";els.guestPostPassword.value="";}clearSelectedImage();els.capsuleUnlockAt.value="";els.capsuleTitleInput.value="";els.memoryTitleInput.value="";
+      if(postType==="memory")activeMemoryFilter=memoryTitle;else activeMemoryFilter=""; setComposerMode("normal"); setStatus(postType==="capsule"?"타임캡슐을 보관했어.":"게시했어."); await loadFeed(); await loadCapsules(); await loadProfileFeed(); if(postType==="capsule")openTab("capsules");
+    }
+    els.postBtn.addEventListener("click",createPost);els.postInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();createPost();}});
+
+    async function editPost(post){
+      const next=prompt("글을 수정하세요.",post.content||"");if(next===null)return;const trimmed=next.trim();if(!trimmed&&!post.image_url)return setStatus("글 내용은 비워둘 수 없어.",true);
+      let error=null;if(!post.user_id){const password=prompt("작성 비밀번호를 입력하세요.");if(password===null)return;const r=await supabase.rpc("update_guest_post",{p_post_id:post.id,p_password:password,p_content:trimmed});error=r.error;if(!error&&r.data!==true)return setStatus("비밀번호가 맞지 않아.",true);}else{({error}=await supabase.from("posts").update({content:trimmed}).eq("id",post.id));}
+      if(error)return setStatus("수정 오류: "+error.message,true);setStatus("수정했어.");await loadFeed();await loadProfileFeed();
+    }
+    async function deleteRoomPostAsAdmin(postId,roomId){
+      const r=await supabase.rpc("admin_delete_room_post",{p_room_id:roomId,p_post_id:postId});
+      if(r.error)return {error:r.error,ok:false,imageUrl:null};
+      const payload=r.data||{};return {error:null,ok:payload.success===true,imageUrl:payload.image_url||null};
+    }
+    async function deletePost(post){
+      if(!confirm("이 글을 삭제할까요?"))return;let error=null,ok=true,imageToDelete=post.image_url||null;
+      if(!post.user_id){
+        const password=prompt("작성 비밀번호를 입력하세요.");if(password===null)return;const r=await supabase.rpc("delete_guest_post",{p_post_id:post.id,p_password:password});error=r.error;ok=r.data===true;
+      }else if(currentUser&&post.room_id&&post.user_id!==currentUser.id&&currentRoomIsAdmin()){
+        const r=await deleteRoomPostAsAdmin(post.id,post.room_id);error=r.error;ok=r.ok;imageToDelete=r.imageUrl||imageToDelete;
+      }else{
+        const r=await supabase.from("posts").delete().eq("id",post.id);error=r.error;
+      }
+      if(error||!ok)return setStatus("삭제 오류: "+(error?.message||"삭제 권한이 없거나 이미 삭제된 글이야."),true);await deleteStoredImage(imageToDelete);setStatus("삭제했어.");await loadFeed();await loadCapsules();await loadProfileFeed();
+    }
+
+    // ---------- 댓글 ----------
+    async function createComment(postId,input,nameInput,passwordInput){
+      const content=input.value.trim();if(!content)return;const guestName=nameInput?.value.trim()||"",guestPassword=passwordInput?.value||"";
+      if(!currentUser&&guestName.length<2)return alert("닉네임을 2자 이상 입력해줘.");if(!currentUser&&guestPassword.length<4)return alert("비밀번호를 4자 이상 입력해줘.");
+      let error=null;if(currentUser)({error}=await supabase.from("comments").insert({post_id:postId,user_id:currentUser.id,guest_name:null,content}));else({error}=await supabase.rpc("create_guest_comment",{p_post_id:postId,p_guest_name:guestName,p_password:guestPassword,p_content:content}));
+      if(error)return alert("댓글 오류: "+error.message);input.value="";if(nameInput)nameInput.value="";if(passwordInput)passwordInput.value="";await loadFeed();
+    }
+    async function editComment(comment){const next=prompt("댓글을 수정하세요.",comment.content);if(next===null||!next.trim())return;let error=null;if(!comment.user_id){const pw=prompt("댓글 비밀번호를 입력하세요.");if(pw===null)return;const r=await supabase.rpc("update_guest_comment",{p_comment_id:comment.id,p_password:pw,p_content:next.trim()});error=r.error;if(!error&&r.data!==true)return alert("비밀번호가 맞지 않아.");}else({error}=await supabase.from("comments").update({content:next.trim()}).eq("id",comment.id));if(error)return alert("댓글 수정 오류: "+error.message);await loadFeed();}
+    async function deleteComment(comment){if(!confirm("이 댓글을 삭제할까요?"))return;let error=null,ok=true;if(!comment.user_id){const pw=prompt("댓글 비밀번호를 입력하세요.");if(pw===null)return;const r=await supabase.rpc("delete_guest_comment",{p_comment_id:comment.id,p_password:pw});error=r.error;ok=r.data===true;}else{const r=await supabase.from("comments").delete().eq("id",comment.id);error=r.error;}if(error||!ok)return alert("댓글 삭제 오류: "+(error?.message||"비밀번호가 맞지 않아."));await loadFeed();}
+
+    // ---------- 피드 렌더 ----------
+    async function renderPostCard(post){
+      const isGuest=!post.user_id, username=isGuest?(post.guest_name||"익명"):(post.profiles?.username||"user"), mine=Boolean(currentUser&&post.user_id===currentUser.id), admin=Boolean(currentUser&&post.room_id&&currentRoomIsAdmin());
+      const article=document.createElement("article");article.className="card feed-card";
+      const head=document.createElement("div");head.className="post-head";const av=document.createElement("div");av.className="avatar";setAvatar(av,username,post.profiles?.avatar_url);
+      const who=document.createElement("div");who.className="who";const name=document.createElement("div");name.className="username";name.append(document.createTextNode(username));
+      if(isGuest){const badge=document.createElement("span");badge.className="guest-badge";badge.textContent="guest";name.appendChild(badge);}
+      if(post.post_type&&post.post_type!=="normal"){const badge=document.createElement("span");badge.className=`post-type-badge ${post.post_type}`;badge.textContent=post.post_type==="daily"?"오늘답변":post.post_type==="capsule"?(post.capsule_title||"타임캡슐"):(post.memory_title||"공동추억");name.appendChild(badge);}
+      const time=document.createElement("div");time.className="time";time.textContent=formatDate(post.created_at);who.append(name,time);head.append(av,who);article.appendChild(head);
+      if(post.post_type==="daily"){const ctx=document.createElement("div");ctx.className="daily-context";const b=document.createElement("strong");b.textContent="🔥 이 답변의 질문";ctx.append(b,document.createTextNode(post.daily_question||"오늘의 질문"));article.appendChild(ctx);}
+      const imgUrl=await resolveImageUrl(post.image_url);if(imgUrl){const wrap=document.createElement("div");wrap.className="post-image-wrap";const img=document.createElement("img");img.className="post-image";img.src=imgUrl;img.alt=`${username}님의 게시물 사진`;img.loading="lazy";wrap.appendChild(img);article.appendChild(wrap);}
+      if(post.content){const body=document.createElement("div");body.className="post-body";body.textContent=post.content;article.appendChild(body);}
+      const actions=document.createElement("div");actions.className="post-actions";const count=document.createElement("span");count.textContent=`댓글 ${Array.isArray(post.comments)?post.comments.length:0}개`;actions.appendChild(count);
+      if(mine||isGuest||admin){const own=document.createElement("div");own.className="post-owner-actions";if(mine||isGuest){const edit=document.createElement("button");edit.className="edit-btn";edit.textContent="수정";edit.addEventListener("click",()=>editPost(post));own.appendChild(edit);}const del=document.createElement("button");del.className="delete-btn";del.textContent=admin&&!mine?"관리자 삭제":"삭제";del.addEventListener("click",()=>deletePost(post));own.appendChild(del);actions.appendChild(own);}article.appendChild(actions);
+      const commentsBox=document.createElement("div");commentsBox.className="comments";const list=document.createElement("div");list.className="comment-list";
+      const comments=Array.isArray(post.comments)?[...post.comments].sort((a,b)=>new Date(a.created_at)-new Date(b.created_at)):[];
+      for(const c of comments){const row=document.createElement("div");row.className="comment-item";const cUser=c.user_id?(c.profiles?.username||"user"):(c.guest_name||"익명");
+        const nameField=document.createElement("div");nameField.className="comment-field";const nb=document.createElement("b");nb.textContent="이름:";const nv=document.createElement("span");nv.textContent=cUser;nameField.append(nb,nv);
+        const textField=document.createElement("div");textField.className="comment-field";const tb=document.createElement("b");tb.textContent="댓글:";const tv=document.createElement("span");tv.textContent=c.content;textField.append(tb,tv);row.append(nameField,textField);
+        const meta=document.createElement("div");meta.className="comment-meta-row";const tm=document.createElement("span");tm.className="comment-time";tm.textContent=formatDate(c.created_at);meta.appendChild(tm);
+        const mineC=Boolean(currentUser&&c.user_id===currentUser.id), guestC=!c.user_id;if(mineC||guestC){const e=document.createElement("button");e.className="comment-edit-btn";e.textContent="수정";e.addEventListener("click",()=>editComment(c));meta.appendChild(e);}if(mineC||guestC||admin){const d=document.createElement("button");d.className="comment-delete-btn";d.textContent=admin&&!mineC&&!guestC?"관리자 삭제":"삭제";d.addEventListener("click",()=>deleteComment(c));meta.appendChild(d);}row.appendChild(meta);list.appendChild(row);}
+      const form=document.createElement("div");form.className="comment-form";let nameInput=null,pwInput=null;if(!currentUser){const creds=document.createElement("div");creds.className="comment-guest-credentials";nameInput=document.createElement("input");nameInput.className="comment-name";nameInput.placeholder="닉네임";nameInput.maxLength=20;pwInput=document.createElement("input");pwInput.className="comment-password";pwInput.type="password";pwInput.placeholder="비밀번호";pwInput.maxLength=50;creds.append(nameInput,pwInput);form.appendChild(creds);}
+      const input=document.createElement("input");input.className="comment-input";input.maxLength=300;input.placeholder="댓글 달기...";const btn=document.createElement("button");btn.className="comment-btn";btn.textContent="게시";const submit=()=>createComment(post.id,input,nameInput,pwInput);btn.addEventListener("click",submit);input.addEventListener("keydown",e=>{if(e.key==="Enter")submit();});const wr=document.createElement("div");wr.className="comment-write-row";wr.append(input,btn);form.appendChild(wr);commentsBox.append(list,form);article.appendChild(commentsBox);return article;
+    }
+
+    async function renderMiniPosts(container,posts,emptyText){
+      container.innerHTML="";if(!posts.length){const e=document.createElement("div");e.className="empty-small";e.textContent=emptyText;container.appendChild(e);return;}
+      for(const p of posts){const username=p.user_id?(p.profiles?.username||"user"):(p.guest_name||"익명");const card=document.createElement("div");card.className="mini-post";const h=document.createElement("div");h.className="mini-post-head";const av=document.createElement("div");av.className="avatar";setAvatar(av,username,p.profiles?.avatar_url);const cp=document.createElement("div");cp.className="mini-post-copy";const st=document.createElement("strong");st.textContent=username;const sm=document.createElement("span");sm.textContent=`${formatDate(p.created_at)}${p.rooms?.name?` · 🏠 ${p.rooms.name}`:""}${p.memory_title?` · 📸 ${p.memory_title}`:""}${p.post_type==="daily"?" · 🔥 오늘답변":""}`;cp.append(st,sm);h.append(av,cp);card.appendChild(h);if(p.content){const b=document.createElement("div");b.className="mini-post-body";b.textContent=p.content;card.appendChild(b);}const url=await resolveImageUrl(p.image_url);if(url){const img=document.createElement("img");img.src=url;img.alt="피드 사진";img.loading="lazy";card.appendChild(img);}container.appendChild(card);}
+    }
+
+    async function loadFeed(){
+      els.feedList.innerHTML='<div class="card empty">피드를 불러오는 중...</div>';
+      if(currentUser&&!currentRoomId){feedCache=[];renderMemoryAlbums([]);memoryReturnPool=[];renderMemoryReturn();await renderMiniPosts(els.homeFeedList,[],"방을 선택하면 최근 글이 보여.");els.feedList.innerHTML='<div class="card empty">홈에서 방을 만들거나 초대코드로 참여해줘.</div>';return;}
+      let q=supabase.from("posts").select(`id, content, image_url, post_type, unlock_at, memory_title, daily_key, daily_question, capsule_title, room_id, created_at, user_id, guest_name, profiles ( username, avatar_url ), comments ( id, content, created_at, user_id, guest_name, profiles ( username, avatar_url ) )`).order("created_at",{ascending:false}).limit(100);
+      q=currentUser?q.eq("room_id",currentRoomId):q.is("room_id",null); const {data,error}=await q;
+      if(error){console.error(error);els.feedList.textContent="피드 오류: "+error.message;return;}
+      feedCache=data||[];const now=new Date();memoryReturnPool=feedCache.filter(p=>now-new Date(p.created_at)>7*86400000&&p.post_type!=="capsule");renderMemoryReturn();renderMemoryAlbums(feedCache);
+      const homePosts=feedCache.filter(p=>!(p.post_type==="capsule"&&p.unlock_at&&new Date(p.unlock_at)>now)).slice(0,5);await renderMiniPosts(els.homeFeedList,homePosts,"아직 우리 방에 글이 없어.");
+      const visible=activeMemoryFilter?feedCache.filter(p=>p.memory_title===activeMemoryFilter):feedCache;els.feedList.innerHTML="";
+      if(!visible.length){els.feedList.innerHTML='<div class="card empty">이 조건에 맞는 글이 없어.</div>';return;}
+      for(const post of visible)els.feedList.appendChild(await renderPostCard(post));
+    }
+
+    async function loadProfileFeed(){
+      if(!currentUser){ await renderMiniPosts(els.profileFeedList,[],"로그인하면 나만의 피드가 보여."); return; }
+      const {data,error}=await supabase.from("posts").select(`id, content, image_url, post_type, unlock_at, memory_title, daily_question, capsule_title, room_id, created_at, user_id, guest_name, profiles ( username, avatar_url ), rooms ( name )`).eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(50);
+      if(error){ console.error(error); await renderMiniPosts(els.profileFeedList,[],"내 피드를 불러오지 못했어."); return; }
+      await renderMiniPosts(els.profileFeedList,data||[],"아직 내가 남긴 글이 없어.");
+    }
+
+    // ---------- 타임캡슐 ----------
+    function formatCapsuleCountdown(unlockAt){const diff=new Date(unlockAt)-new Date();if(diff<=0)return"공개됨";const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000);return d>0?`D-${d}`:h>0?`${h}시간 ${m}분 후`:`${Math.max(m,1)}분 후`;}
+    function updateCapsuleDashboard(items){const now=new Date(),future=(items||[]).filter(c=>c.unlock_at&&new Date(c.unlock_at)>now).sort((a,b)=>new Date(a.unlock_at)-new Date(b.unlock_at));if(!future.length){els.nextCapsuleCountdown.textContent="아직 없음";els.nextCapsuleText.textContent="열릴 타임캡슐을 만들어봐.";return;}const next=future[0], title=next.capsule_title||"이름 없는 타임캡슐";els.nextCapsuleCountdown.textContent=formatCapsuleCountdown(next.unlock_at);els.nextCapsuleText.textContent=`${title} · ${new Date(next.unlock_at).toLocaleString("ko-KR")} 공개`;}
+
+    async function loadCapsules(){
+      if(currentUser&&!currentRoomId){capsuleMetadataCache=[];els.capsuleList.innerHTML='<div class="card empty">방을 선택하면 타임캡슐이 보여.</div>';updateCapsuleDashboard([]);return;}
+      els.capsuleList.innerHTML='<div class="card empty">타임캡슐을 불러오는 중...</div>';
+      let q=supabase.from("posts").select(`id, content, image_url, created_at, user_id, guest_name, unlock_at, post_type, room_id, capsule_title, profiles ( username, avatar_url )`).eq("post_type","capsule").order("unlock_at",{ascending:true});q=currentUser?q.eq("room_id",currentRoomId):q.is("room_id",null);
+      const {data:visible,error}=await q;if(error){els.capsuleList.textContent="캡슐 오류: "+error.message;return;}
+      let meta=[],metaError=null;if(currentUser){const r=await supabase.rpc("list_room_capsule_metadata",{p_room_id:currentRoomId});meta=r.data||[];metaError=r.error;}else{const r=await supabase.rpc("list_locked_guest_capsules");meta=r.data||[];metaError=r.error;}if(metaError)console.error(metaError);
+      const items=[],seen=new Set();for(const c of visible||[]){items.push({...c,metadataOnly:false});seen.add(String(c.id));}
+      for(const m of meta){if(seen.has(String(m.id)))continue;items.push({id:m.id,user_id:m.user_id||null,guest_name:m.guest_name||null,unlock_at:m.unlock_at,created_at:m.created_at,capsule_title:m.capsule_title||null,room_id:currentRoomId,content:null,image_url:null,metadataOnly:true,profiles:m.username?{username:m.username,avatar_url:m.avatar_url}:null});}
+      items.sort((a,b)=>new Date(a.unlock_at)-new Date(b.unlock_at));capsuleMetadataCache=items;updateCapsuleDashboard(items);els.capsuleList.innerHTML="";if(!items.length){els.capsuleList.innerHTML='<div class="card empty">아직 타임캡슐이 없어.</div>';return;}
+      for(const c of items){const locked=new Date(c.unlock_at)>new Date(),mine=Boolean(currentUser&&c.user_id===currentUser.id),guest=!c.user_id,admin=Boolean(currentUser&&c.room_id&&currentRoomIsAdmin());const who=c.profiles?.username||c.guest_name||"guest";const card=document.createElement("article");card.className="capsule-preview-card";const title=document.createElement("div");title.className="capsule-title-line";title.textContent=`⏳ ${c.capsule_title||`${who}의 타임캡슐`}`;const owner=document.createElement("div");owner.className="capsule-meta";owner.textContent=`${who} · ${new Date(c.unlock_at).toLocaleString("ko-KR")} 공개 · ${formatCapsuleCountdown(c.unlock_at)}`;const summary=document.createElement("div");summary.className="capsule-summary";summary.textContent=c.metadataOnly?"🔒 공개일까지 내용이 잠겨 있어.":(locked&&mine?(c.content?.trim()||"내가 만든 잠긴 타임캡슐"):(locked?"🔒 공개일까지 내용이 잠겨 있어.":(c.content?.trim()||"공개된 타임캡슐")));card.append(title,owner,summary);
+        const actions=document.createElement("div");actions.className="capsule-preview-actions";
+        if(locked&&mine){const e=document.createElement("button");e.className="soft-btn";e.textContent="수정";e.addEventListener("click",async()=>{const newTitle=prompt("타임캡슐 이름",c.capsule_title||"");if(newTitle===null)return;if(newTitle.trim().length<2)return alert("타임캡슐 이름은 2자 이상 입력해줘.");const next=prompt("타임캡슐 내용",c.content||"");if(next===null)return;const {error}=await supabase.from("posts").update({capsule_title:newTitle.trim(),content:next.trim()}).eq("id",c.id);if(error)return alert("수정 오류: "+error.message);await loadCapsules();await loadFeed();});actions.appendChild(e);}
+        if(locked&&guest){const e=document.createElement("button");e.className="soft-btn";e.textContent="비밀번호로 수정";e.addEventListener("click",async()=>{const pw=prompt("작성 비밀번호");if(pw===null)return;const title=prompt("타임캡슐 이름",c.capsule_title||"");if(title===null)return;const next=prompt("타임캡슐 내용");if(next===null)return;const r=await supabase.rpc("update_guest_capsule",{p_post_id:c.id,p_password:pw,p_content:next.trim(),p_capsule_title:title.trim()});if(r.error)return alert("수정 오류: "+r.error.message);if(r.data!==true)return alert("비밀번호가 맞지 않아.");await loadCapsules();});actions.appendChild(e);}
+        if((mine||guest||admin)&&locked){const d=document.createElement("button");d.className="delete-btn";d.textContent=admin&&!mine&&!guest?"관리자 삭제":(guest?"비밀번호로 삭제":"삭제");d.addEventListener("click",async()=>{if(!confirm("이 타임캡슐을 삭제할까요?"))return;let imageToDelete=c.image_url||null;if(guest){const pw=prompt("작성 비밀번호");if(pw===null)return;const r=await supabase.rpc("delete_guest_post",{p_post_id:c.id,p_password:pw});if(r.error||r.data!==true)return alert("삭제 실패");}else if(admin&&!mine){const r=await deleteRoomPostAsAdmin(c.id,c.room_id);if(r.error||!r.ok)return alert("삭제 오류: "+(r.error?.message||"삭제 권한이 없어."));imageToDelete=r.imageUrl||imageToDelete;}else{const {error}=await supabase.from("posts").delete().eq("id",c.id);if(error)return alert("삭제 오류: "+error.message);}if(imageToDelete)await deleteStoredImage(imageToDelete);await loadCapsules();await loadFeed();await loadProfileFeed();});actions.appendChild(d);}
+        if(actions.children.length)card.appendChild(actions);els.capsuleList.appendChild(card);
+      }
+    }
+
+    // ---------- 프로필 사진 ----------
+    async function deleteProfileStorage(url){const path=publicStoragePath(url,"profile-images");if(path)await supabase.storage.from("profile-images").remove([path]);}
+    els.profileImageInput.addEventListener("change",async()=>{
+      const file=els.profileImageInput.files?.[0];els.profileImageInput.value="";if(!file||!currentUser)return;if(!file.type.startsWith("image/"))return setProfileStatus("이미지 파일만 선택해줘.",true);if(file.size>MAX_IMAGE_BYTES)return setProfileStatus("프로필 사진은 5MB 이하만 가능해.",true);
+      setProfileStatus("프로필 사진 업로드 중...");const ext=safeFileExtension(file),path=`users/${currentUser.id}/avatar-${Date.now()}.${ext}`;const {error:upError}=await supabase.storage.from("profile-images").upload(path,file,{upsert:false,contentType:file.type});if(upError)return setProfileStatus("업로드 오류: "+upError.message,true);const url=supabase.storage.from("profile-images").getPublicUrl(path).data.publicUrl;const old=currentProfile?.avatar_url;const {error}=await supabase.from("profiles").update({avatar_url:url}).eq("id",currentUser.id);if(error){await supabase.storage.from("profile-images").remove([path]);return setProfileStatus("프로필 저장 오류: "+error.message,true);}if(old)await deleteProfileStorage(old);await loadMyProfile();renderSession();await loadRoomMembers();await loadFeed();await loadProfileFeed();setProfileStatus("프로필 사진을 바꿨어.");
+    });
+    els.deleteProfileImageBtn.addEventListener("click",async()=>{if(!currentUser||!currentProfile?.avatar_url)return setProfileStatus("삭제할 프로필 사진이 없어.");if(!confirm("프로필 사진을 삭제할까요?"))return;const old=currentProfile.avatar_url;const {error}=await supabase.from("profiles").update({avatar_url:null}).eq("id",currentUser.id);if(error)return setProfileStatus("삭제 오류: "+error.message,true);await deleteProfileStorage(old);await loadMyProfile();renderSession();await loadRoomMembers();await loadFeed();await loadProfileFeed();setProfileStatus("프로필 사진을 삭제했어.");});
+
+    // ---------- 초기화 ----------
+    renderDailyQuestion(); setComposerMode("normal");
+    async function refreshSession(session){currentUser=session?.user||null;await loadMyProfile();renderSession();await loadRooms();await loadFeed();await loadCapsules();await loadProfileFeed();}
+    const {data:sessionData}=await supabase.auth.getSession();await refreshSession(sessionData.session);
+    supabase.auth.onAuthStateChange((_event,session)=>setTimeout(()=>refreshSession(session),0));
   </script>
 </body>
 </html>

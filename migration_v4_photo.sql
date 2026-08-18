@@ -1,7 +1,7 @@
 -- MiniGram v4: 게시물 사진 업로드
 -- v3 적용 후 실행하세요.
 -- 기존 데이터는 유지됩니다.
-
+ 
 -- 1. posts에 사진 URL 컬럼 추가
 alter table public.posts
   add column if not exists image_url text;

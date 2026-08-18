@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko"> 
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -180,6 +180,20 @@
       border-color: var(--muted);
     }
 
+    .guest-name-input,
+    .guest-password-input {
+      width: 120px;
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 22px;
+      padding: 11px 14px;
+      outline: none;
+    }
+
+    .guest-name-input:focus,
+    .guest-password-input:focus { border-color: var(--muted); }
+
     .feed-card { margin-bottom: 18px; }
 
     .post-head {
@@ -209,8 +223,77 @@
       font-size: 12px;
     }
 
+    .post-image-wrap {
+      width: 100%;
+      background: var(--surface-2);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .post-image {
+      display: block;
+      width: 100%;
+      max-height: 620px;
+      object-fit: cover;
+      background: var(--surface-2);
+    }
+
+    .image-picker-row {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .image-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--surface-2);
+    }
+
+    .image-label input { display: none; }
+
+    .image-preview-wrap {
+      margin-top: 12px;
+      display: none;
+      position: relative;
+      width: min(260px, 100%);
+    }
+
+    .image-preview-wrap.show { display: block; }
+
+    .image-preview {
+      width: 100%;
+      max-height: 260px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+    }
+
+    .clear-image-btn {
+      position: absolute;
+      right: 7px;
+      top: 7px;
+      width: 30px;
+      height: 30px;
+      border: 0;
+      border-radius: 50%;
+      cursor: pointer;
+      background: rgba(0,0,0,.7);
+      color: #fff;
+      font-weight: 800;
+    }
+
     .post-body {
-      padding: 3px 16px 18px;
+      padding: 14px 16px 18px;
       font-size: 15px;
       line-height: 1.55;
       white-space: pre-wrap;
@@ -227,13 +310,110 @@
       font-size: 13px;
     }
 
-    .delete-btn {
+    .delete-btn, .edit-btn {
       border: 0;
       background: transparent;
-      color: var(--danger);
       cursor: pointer;
       font-weight: 650;
       padding: 4px;
+    }
+
+    .delete-btn { color: var(--danger); }
+    .edit-btn { color: var(--accent); }
+
+    .post-owner-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .guest-badge {
+      display: inline-block;
+      margin-left: 5px;
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: var(--surface-2);
+      color: var(--muted);
+      font-size: 10px;
+      vertical-align: 1px;
+    }
+
+    .comments {
+      border-top: 1px solid var(--line);
+      padding: 12px 14px 14px;
+    }
+
+    .comment-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .comment-item {
+      font-size: 13px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+
+    .comment-item strong { margin-right: 6px; }
+
+    .comment-owner-actions {
+      display: inline-flex;
+      gap: 6px;
+      margin-left: 8px;
+    }
+
+    .comment-edit-btn,
+    .comment-delete-btn {
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 3px;
+      font-weight: 650;
+    }
+
+    .comment-edit-btn { color: var(--accent); }
+    .comment-delete-btn { color: var(--danger); }
+    .comment-time {
+      color: var(--muted);
+      font-size: 11px;
+      margin-left: 6px;
+    }
+
+    .comment-form {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .comment-name {
+      width: 90px;
+      min-width: 90px;
+    }
+
+    .comment-input {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .comment-name, .comment-password, .comment-input {
+      border: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 18px;
+      padding: 9px 11px;
+      outline: none;
+      font-size: 13px;
+    }
+
+    .comment-btn {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      font-weight: 750;
+      cursor: pointer;
+      padding: 8px 4px;
     }
 
     .sidebar {
@@ -399,8 +579,12 @@
       .card { border-left: 0; border-right: 0; border-radius: 0; }
       .layout { width: 100%; }
       .composer, .feed-card { margin-bottom: 10px; }
-      .composer-row { align-items: stretch; }
+      .composer-row { align-items: stretch; flex-wrap: wrap; }
       .composer .avatar { display: none; }
+      .guest-name-input, .guest-password-input { width: 100%; }
+      .composer-input { flex-basis: calc(100% - 74px); }
+      .comment-form { flex-wrap: wrap; }
+      .comment-name { width: 100%; }
       .primary-btn { padding-left: 12px; padding-right: 12px; }
     }
   </style>
@@ -422,9 +606,24 @@
       <section id="composerCard" class="card composer">
         <div class="composer-row">
           <div class="avatar"><span id="composerAvatar">?</span></div>
+          <input id="guestPostName" class="guest-name-input" maxlength="20"
+                 placeholder="닉네임" />
+          <input id="guestPostPassword" class="guest-password-input" type="password"
+                 minlength="4" maxlength="50" placeholder="비밀번호" />
           <input id="postInput" class="composer-input" maxlength="500"
-                 placeholder="로그인 후 글을 남길 수 있어요" disabled />
-          <button id="postBtn" class="primary-btn" disabled>게시</button>
+                 placeholder="로그인 없이도 글을 남길 수 있어요" />
+          <button id="postBtn" class="primary-btn">게시</button>
+        </div>
+        <div class="image-picker-row">
+          <label class="image-label">
+            📷 사진 추가
+            <input id="postImageInput" type="file" accept="image/*" />
+          </label>
+          <span class="hint" style="margin:0">이미지 1장 · 최대 5MB</span>
+        </div>
+        <div id="imagePreviewWrap" class="image-preview-wrap">
+          <img id="imagePreview" class="image-preview" alt="업로드 미리보기" />
+          <button id="clearImageBtn" class="clear-image-btn" type="button" aria-label="사진 선택 취소">×</button>
         </div>
         <p id="status" class="status"></p>
       </section>
@@ -441,12 +640,12 @@
             <span id="sideEmail"></span>
           </div>
         </div>
-        <p class="help">내가 쓴 글은 피드에서 직접 삭제할 수 있어요.</p>
+        <p class="help">로그인 글은 본인만 수정/삭제할 수 있고, 비로그인 글·댓글은 작성 비밀번호로 관리할 수 있어요.</p>
       </section>
 
       <section id="guestPanel" class="card guest-box">
         <strong>MiniGram에 오신 걸 환영해요</strong>
-        <p>계정을 만들면 나만의 닉네임으로 글을 남길 수 있습니다.</p>
+        <p>비로그인도 닉네임 + 비밀번호로 글과 댓글을 남기고, 같은 비밀번호로 수정/삭제할 수 있어요.</p>
         <button id="guestLoginBtn" class="primary-btn">시작하기</button>
       </section>
     </aside>
@@ -511,8 +710,14 @@
       sideEmail: document.getElementById("sideEmail"),
       sideAvatar: document.getElementById("sideAvatar"),
       composerAvatar: document.getElementById("composerAvatar"),
+      guestPostName: document.getElementById("guestPostName"),
+      guestPostPassword: document.getElementById("guestPostPassword"),
       postInput: document.getElementById("postInput"),
       postBtn: document.getElementById("postBtn"),
+      postImageInput: document.getElementById("postImageInput"),
+      imagePreviewWrap: document.getElementById("imagePreviewWrap"),
+      imagePreview: document.getElementById("imagePreview"),
+      clearImageBtn: document.getElementById("clearImageBtn"),
       status: document.getElementById("status"),
       feedList: document.getElementById("feedList"),
       authModal: document.getElementById("authModal"),
@@ -717,9 +922,13 @@
       els.profilePanel.hidden = !loggedIn;
       els.guestPanel.hidden = loggedIn;
 
-      els.postInput.disabled = !loggedIn;
-      els.postBtn.disabled = !loggedIn;
-      els.postInput.placeholder = loggedIn ? "무슨 생각을 하고 있나요?" : "로그인 후 글을 남길 수 있어요";
+      els.postInput.disabled = false;
+      els.postBtn.disabled = false;
+      els.guestPostName.hidden = loggedIn;
+      els.guestPostPassword.hidden = loggedIn;
+      els.postInput.placeholder = loggedIn
+        ? "무슨 생각을 하고 있나요?"
+        : "로그인 없이도 글을 남길 수 있어요";
 
       if (loggedIn) {
         const name = currentProfile?.username || currentUser.user_metadata?.username || "user";
@@ -732,39 +941,173 @@
       }
     }
 
-    // ---------- 글 작성 ----------
-    async function createPost() {
-      if (!currentUser) {
-        openAuth("login");
+    // ---------- 사진 업로드 ----------
+    const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+    let selectedPostImage = null;
+    let previewObjectUrl = null;
+
+    function clearSelectedImage() {
+      selectedPostImage = null;
+      els.postImageInput.value = "";
+
+      if (previewObjectUrl) {
+        URL.revokeObjectURL(previewObjectUrl);
+        previewObjectUrl = null;
+      }
+
+      els.imagePreview.removeAttribute("src");
+      els.imagePreviewWrap.classList.remove("show");
+    }
+
+    els.postImageInput.addEventListener("change", () => {
+      const file = els.postImageInput.files?.[0] || null;
+
+      if (!file) {
+        clearSelectedImage();
         return;
       }
 
+      if (!file.type.startsWith("image/")) {
+        setStatus("이미지 파일만 업로드할 수 있습니다.", true);
+        clearSelectedImage();
+        return;
+      }
+
+      if (file.size > MAX_IMAGE_BYTES) {
+        setStatus("사진은 5MB 이하만 업로드할 수 있습니다.", true);
+        clearSelectedImage();
+        return;
+      }
+
+      selectedPostImage = file;
+
+      if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+      previewObjectUrl = URL.createObjectURL(file);
+      els.imagePreview.src = previewObjectUrl;
+      els.imagePreviewWrap.classList.add("show");
+      setStatus();
+    });
+
+    els.clearImageBtn.addEventListener("click", clearSelectedImage);
+
+    function safeFileExtension(file) {
+      const raw = file.name.split(".").pop()?.toLowerCase() || "";
+      const allowed = ["jpg", "jpeg", "png", "webp", "gif"];
+      if (allowed.includes(raw)) return raw;
+
+      const byMime = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif"
+      };
+
+      return byMime[file.type] || "jpg";
+    }
+
+    async function uploadPostImage(file) {
+      if (!file) return null;
+
+      const ext = safeFileExtension(file);
+      const folder = currentUser ? `users/${currentUser.id}` : "guests";
+      const filename =
+        `${Date.now()}-${crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}.${ext}`;
+      const path = `${folder}/${filename}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("post-images")
+        .upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from("post-images")
+        .getPublicUrl(path);
+
+      return data.publicUrl;
+    }
+
+    // ---------- 글 작성 ----------
+    async function createPost() {
       const content = els.postInput.value.trim();
-      if (!content) {
-        setStatus("내용을 입력하세요.", true);
+      const guestName = els.guestPostName.value.trim();
+      const guestPassword = els.guestPostPassword.value;
+
+      if (!content && !selectedPostImage) {
+        setStatus("글 내용이나 사진 중 하나는 있어야 합니다.", true);
         els.postInput.focus();
         return;
       }
 
-      els.postBtn.disabled = true;
-      setStatus("게시 중...");
+      if (!currentUser && guestName.length < 2) {
+        setStatus("비로그인 글은 닉네임을 2자 이상 입력하세요.", true);
+        els.guestPostName.focus();
+        return;
+      }
 
-      const { error } = await supabase
-        .from("posts")
-        .insert({
-          user_id: currentUser.id,
-          content
+      if (!currentUser && guestPassword.length < 4) {
+        setStatus("비로그인 글 비밀번호는 4자 이상 입력하세요.", true);
+        els.guestPostPassword.focus();
+        return;
+      }
+
+      els.postBtn.disabled = true;
+      setStatus(selectedPostImage ? "사진 업로드 중..." : "게시 중...");
+
+      let imageUrl = null;
+
+      try {
+        if (selectedPostImage) {
+          imageUrl = await uploadPostImage(selectedPostImage);
+        }
+      } catch (e) {
+        console.error(e);
+        els.postBtn.disabled = false;
+        setStatus("사진 업로드 오류: " + (e.message || "업로드에 실패했습니다."), true);
+        return;
+      }
+
+      setStatus("게시 중...");
+      let error = null;
+
+      if (currentUser) {
+        const result = await supabase
+          .from("posts")
+          .insert({
+            user_id: currentUser.id,
+            guest_name: null,
+            content: content || "",
+            image_url: imageUrl
+          });
+        error = result.error;
+      } else {
+        const result = await supabase.rpc("create_guest_post", {
+          p_guest_name: guestName,
+          p_password: guestPassword,
+          p_content: content || "",
+          p_image_url: imageUrl
         });
+        error = result.error;
+      }
 
       els.postBtn.disabled = false;
 
       if (error) {
         console.error(error);
-        setStatus("게시하지 못했습니다. setup.sql과 RLS 정책을 확인하세요.", true);
+        setStatus("게시 오류: " + error.message, true);
         return;
       }
 
       els.postInput.value = "";
+      if (!currentUser) {
+        els.guestPostName.value = "";
+        els.guestPostPassword.value = "";
+      }
+      clearSelectedImage();
       setStatus("게시했습니다.");
       await loadFeed();
     }
@@ -777,21 +1120,226 @@
       }
     });
 
-    async function deletePost(id) {
-      if (!currentUser) return;
-      if (!confirm("이 글을 삭제할까요?")) return;
+    async function editPost(id, oldContent, isGuest = false) {
+      const content = prompt("글을 수정하세요.", oldContent);
+      if (content === null) return;
 
-      const { error } = await supabase
-        .from("posts")
-        .delete()
-        .eq("id", id);
+      const trimmed = content.trim();
+      if (!trimmed) {
+        setStatus("글 내용은 비워둘 수 없습니다.", true);
+        return;
+      }
+
+      let error = null;
+
+      if (isGuest) {
+        const password = prompt("작성할 때 입력한 비밀번호를 입력하세요.");
+        if (password === null) return;
+
+        const result = await supabase.rpc("update_guest_post", {
+          p_post_id: id,
+          p_password: password,
+          p_content: trimmed
+        });
+
+        error = result.error;
+        if (!error && result.data !== true) {
+          setStatus("비밀번호가 맞지 않거나 수정할 수 없는 글입니다.", true);
+          return;
+        }
+      } else {
+        if (!currentUser) return;
+
+        const result = await supabase
+          .from("posts")
+          .update({ content: trimmed })
+          .eq("id", id);
+        error = result.error;
+      }
 
       if (error) {
-        setStatus("삭제하지 못했습니다.", true);
+        console.error(error);
+        setStatus("수정 오류: " + error.message, true);
+        return;
+      }
+
+      setStatus("글을 수정했습니다.");
+      await loadFeed();
+    }
+
+    async function deletePost(id, isGuest = false) {
+      if (!confirm("이 글을 삭제할까요?")) return;
+
+      let error = null;
+
+      if (isGuest) {
+        const password = prompt("작성할 때 입력한 비밀번호를 입력하세요.");
+        if (password === null) return;
+
+        const result = await supabase.rpc("delete_guest_post", {
+          p_post_id: id,
+          p_password: password
+        });
+
+        error = result.error;
+        if (!error && result.data !== true) {
+          setStatus("비밀번호가 맞지 않거나 삭제할 수 없는 글입니다.", true);
+          return;
+        }
+      } else {
+        if (!currentUser) return;
+
+        const result = await supabase
+          .from("posts")
+          .delete()
+          .eq("id", id);
+        error = result.error;
+      }
+
+      if (error) {
+        console.error(error);
+        setStatus("삭제 오류: " + error.message, true);
         return;
       }
 
       setStatus("삭제했습니다.");
+      await loadFeed();
+    }
+
+    async function editComment(id, oldContent, isGuest = false) {
+      const content = prompt("댓글을 수정하세요.", oldContent);
+      if (content === null) return;
+
+      const trimmed = content.trim();
+      if (!trimmed) {
+        alert("댓글 내용은 비워둘 수 없습니다.");
+        return;
+      }
+
+      let error = null;
+
+      if (isGuest) {
+        const password = prompt("댓글 작성 시 입력한 비밀번호를 입력하세요.");
+        if (password === null) return;
+
+        const result = await supabase.rpc("update_guest_comment", {
+          p_comment_id: id,
+          p_password: password,
+          p_content: trimmed
+        });
+
+        error = result.error;
+        if (!error && result.data !== true) {
+          alert("비밀번호가 맞지 않거나 수정할 수 없는 댓글입니다.");
+          return;
+        }
+      } else {
+        if (!currentUser) return;
+
+        const result = await supabase
+          .from("comments")
+          .update({ content: trimmed })
+          .eq("id", id);
+        error = result.error;
+      }
+
+      if (error) {
+        console.error(error);
+        alert("댓글 수정 오류: " + error.message);
+        return;
+      }
+
+      await loadFeed();
+    }
+
+    async function deleteComment(id, isGuest = false) {
+      if (!confirm("이 댓글을 삭제할까요?")) return;
+
+      let error = null;
+
+      if (isGuest) {
+        const password = prompt("댓글 작성 시 입력한 비밀번호를 입력하세요.");
+        if (password === null) return;
+
+        const result = await supabase.rpc("delete_guest_comment", {
+          p_comment_id: id,
+          p_password: password
+        });
+
+        error = result.error;
+        if (!error && result.data !== true) {
+          alert("비밀번호가 맞지 않거나 삭제할 수 없는 댓글입니다.");
+          return;
+        }
+      } else {
+        if (!currentUser) return;
+
+        const result = await supabase
+          .from("comments")
+          .delete()
+          .eq("id", id);
+        error = result.error;
+      }
+
+      if (error) {
+        console.error(error);
+        alert("댓글 삭제 오류: " + error.message);
+        return;
+      }
+
+      await loadFeed();
+    }
+
+    async function createComment(postId, input, nameInput, passwordInput) {
+      const content = input.value.trim();
+      const guestName = nameInput?.value.trim() || "";
+      const guestPassword = passwordInput?.value || "";
+
+      if (!content) return;
+
+      if (!currentUser && guestName.length < 2) {
+        alert("비로그인 댓글은 닉네임을 2자 이상 입력하세요.");
+        nameInput?.focus();
+        return;
+      }
+
+      if (!currentUser && guestPassword.length < 4) {
+        alert("비로그인 댓글 비밀번호는 4자 이상 입력하세요.");
+        passwordInput?.focus();
+        return;
+      }
+
+      let error = null;
+
+      if (currentUser) {
+        const result = await supabase
+          .from("comments")
+          .insert({
+            post_id: postId,
+            user_id: currentUser.id,
+            guest_name: null,
+            content
+          });
+        error = result.error;
+      } else {
+        const result = await supabase.rpc("create_guest_comment", {
+          p_post_id: postId,
+          p_guest_name: guestName,
+          p_password: guestPassword,
+          p_content: content
+        });
+        error = result.error;
+      }
+
+      if (error) {
+        console.error(error);
+        alert("댓글 오류: " + error.message);
+        return;
+      }
+
+      input.value = "";
+      if (nameInput) nameInput.value = "";
+      if (passwordInput) passwordInput.value = "";
       await loadFeed();
     }
 
@@ -804,10 +1352,22 @@
         .select(`
           id,
           content,
+          image_url,
           created_at,
           user_id,
+          guest_name,
           profiles (
             username
+          ),
+          comments (
+            id,
+            content,
+            created_at,
+            user_id,
+            guest_name,
+            profiles (
+              username
+            )
           )
         `)
         .order("created_at", { ascending: false })
@@ -816,7 +1376,7 @@
       if (error) {
         console.error(error);
         els.feedList.innerHTML =
-          '<div class="card empty">피드를 불러오지 못했습니다.<br>Supabase 설정과 setup.sql 실행 여부를 확인하세요.</div>';
+          `<div class="card empty">피드 오류<br>${error.message}</div>`;
         return;
       }
 
@@ -829,8 +1389,11 @@
       els.feedList.innerHTML = "";
 
       for (const post of data) {
-        const username = post.profiles?.username || "user";
-        const mine = currentUser?.id === post.user_id;
+        const isGuestPost = !post.user_id;
+        const username = isGuestPost
+          ? (post.guest_name || "익명")
+          : (post.profiles?.username || "user");
+        const mine = Boolean(currentUser && post.user_id === currentUser.id);
 
         const article = document.createElement("article");
         article.className = "card feed-card";
@@ -850,6 +1413,12 @@
         const name = document.createElement("div");
         name.className = "username";
         name.textContent = username;
+        if (isGuestPost) {
+          const badge = document.createElement("span");
+          badge.className = "guest-badge";
+          badge.textContent = "guest";
+          name.appendChild(badge);
+        }
 
         const time = document.createElement("div");
         time.className = "time";
@@ -858,26 +1427,152 @@
         who.append(name, time);
         head.append(avatar, who);
 
+        let imageWrap = null;
+        if (post.image_url) {
+          imageWrap = document.createElement("div");
+          imageWrap.className = "post-image-wrap";
+
+          const image = document.createElement("img");
+          image.className = "post-image";
+          image.src = post.image_url;
+          image.alt = `${username}님의 게시물 사진`;
+          image.loading = "lazy";
+
+          imageWrap.appendChild(image);
+        }
+
         const body = document.createElement("div");
         body.className = "post-body";
         body.textContent = escapeText(post.content);
+        if (!post.content) body.hidden = true;
 
         const actions = document.createElement("div");
         actions.className = "post-actions";
 
         const label = document.createElement("span");
-        label.textContent = "MiniGram post";
+        const commentCount = Array.isArray(post.comments) ? post.comments.length : 0;
+        label.textContent = `댓글 ${commentCount}개`;
         actions.appendChild(label);
 
-        if (mine) {
+        if (mine || isGuestPost) {
+          const ownerActions = document.createElement("div");
+          ownerActions.className = "post-owner-actions";
+
+          const edit = document.createElement("button");
+          edit.className = "edit-btn";
+          edit.textContent = "수정";
+          edit.addEventListener("click", () => editPost(post.id, post.content, isGuestPost));
+
           const del = document.createElement("button");
           del.className = "delete-btn";
           del.textContent = "삭제";
-          del.addEventListener("click", () => deletePost(post.id));
-          actions.appendChild(del);
+          del.addEventListener("click", () => deletePost(post.id, isGuestPost));
+
+          ownerActions.append(edit, del);
+          actions.appendChild(ownerActions);
         }
 
-        article.append(head, body, actions);
+        const commentsBox = document.createElement("div");
+        commentsBox.className = "comments";
+
+        const commentList = document.createElement("div");
+        commentList.className = "comment-list";
+
+        const comments = Array.isArray(post.comments)
+          ? [...post.comments].sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+          : [];
+
+        for (const comment of comments) {
+          const row = document.createElement("div");
+          row.className = "comment-item";
+
+          const cUser = comment.user_id
+            ? (comment.profiles?.username || "user")
+            : (comment.guest_name || "익명");
+
+          const strong = document.createElement("strong");
+          strong.textContent = cUser;
+
+          const text = document.createElement("span");
+          text.textContent = comment.content;
+
+          const cTime = document.createElement("span");
+          cTime.className = "comment-time";
+          cTime.textContent = formatDate(comment.created_at);
+
+          row.append(strong, text, cTime);
+
+          const isGuestComment = !comment.user_id;
+          const mineComment = Boolean(currentUser && comment.user_id === currentUser.id);
+
+          if (isGuestComment || mineComment) {
+            const cActions = document.createElement("span");
+            cActions.className = "comment-owner-actions";
+
+            const cEdit = document.createElement("button");
+            cEdit.className = "comment-edit-btn";
+            cEdit.textContent = "수정";
+            cEdit.addEventListener("click", () =>
+              editComment(comment.id, comment.content, isGuestComment)
+            );
+
+            const cDelete = document.createElement("button");
+            cDelete.className = "comment-delete-btn";
+            cDelete.textContent = "삭제";
+            cDelete.addEventListener("click", () =>
+              deleteComment(comment.id, isGuestComment)
+            );
+
+            cActions.append(cEdit, cDelete);
+            row.appendChild(cActions);
+          }
+
+          commentList.appendChild(row);
+        }
+
+        const form = document.createElement("div");
+        form.className = "comment-form";
+
+        let commentNameInput = null;
+        let commentPasswordInput = null;
+        if (!currentUser) {
+          commentNameInput = document.createElement("input");
+          commentNameInput.className = "comment-name";
+          commentNameInput.maxLength = 20;
+          commentNameInput.placeholder = "닉네임";
+
+          commentPasswordInput = document.createElement("input");
+          commentPasswordInput.className = "comment-password";
+          commentPasswordInput.type = "password";
+          commentPasswordInput.minLength = 4;
+          commentPasswordInput.maxLength = 50;
+          commentPasswordInput.placeholder = "비밀번호";
+
+          form.append(commentNameInput, commentPasswordInput);
+        }
+
+        const commentInput = document.createElement("input");
+        commentInput.className = "comment-input";
+        commentInput.maxLength = 300;
+        commentInput.placeholder = currentUser
+          ? "댓글 달기..."
+          : "비로그인 댓글 달기...";
+
+        const commentBtn = document.createElement("button");
+        commentBtn.className = "comment-btn";
+        commentBtn.textContent = "게시";
+
+        const submitComment = () =>
+          createComment(post.id, commentInput, commentNameInput, commentPasswordInput);
+        commentBtn.addEventListener("click", submitComment);
+        commentInput.addEventListener("keydown", e => {
+          if (e.key === "Enter") submitComment();
+        });
+
+        form.append(commentInput, commentBtn);
+        commentsBox.append(commentList, form);
+
+        article.append(head, body, actions, commentsBox);
         els.feedList.appendChild(article);
       }
     }

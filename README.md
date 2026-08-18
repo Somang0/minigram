@@ -1,137 +1,80 @@
-# MiniGram — GitHub Pages + Supabase
+# MiniGram v4 — 사진 게시물
 
-인스타그램 느낌의 간단한 커뮤니티 예제입니다.
+v3에 게시물 사진 업로드를 추가한 버전입니다.
 
-## 들어간 기능
+## 추가 기능
 
-- 라이트 / 다크모드
-- 반응형 모바일 UI
-- 이메일 + 비밀번호 회원가입
-- 로그인 / 로그아웃
-- 유저별 닉네임 프로필
-- 로그인한 사용자만 글 작성
-- 작성자 닉네임과 작성 시간 표시
-- 본인 글만 삭제
-- Supabase Auth + PostgreSQL + RLS
-- GitHub Pages에서 그대로 배포 가능
+- 로그인 사용자 사진 게시물
+- 비로그인 사용자 사진 게시물
+- 글 + 사진 또는 사진만 게시 가능
+- 업로드 전 미리보기
+- 사진 선택 취소
+- 이미지 1장
+- 최대 5MB
+- jpg / jpeg / png / webp / gif
+- 피드 이미지 lazy loading
 
-## 파일
+## 적용 순서
 
-- `index.html` : 웹사이트 전체
-- `setup.sql` : Supabase DB / RLS / 회원가입 프로필 트리거 설정
-- `README.md` : 이 안내서
+### 1. Storage bucket 만들기
 
----
+Supabase Dashboard → Storage → New bucket
 
-## 1. Supabase 프로젝트 만들기
+Bucket name:
 
-Supabase에서 새 프로젝트를 만듭니다.
+`post-images`
 
-## 2. DB 설정
+설정:
 
-Supabase Dashboard → **SQL Editor**로 이동한 뒤 `setup.sql`의 전체 내용을 붙여 넣고 실행하세요.
+- **Public bucket: ON**
+- File size limit: **5 MB**
+- Allowed MIME types:
+  - `image/jpeg`
+  - `image/png`
+  - `image/webp`
+  - `image/gif`
 
-이 SQL이 생성하는 것:
+사진은 공개 피드용이므로 public bucket을 사용합니다.
 
-- `profiles` : 유저 닉네임
-- `posts` : 게시글
-- 회원가입 시 프로필 자동 생성 trigger
-- RLS 보안 정책
+### 2. SQL 실행
 
-## 3. Auth 설정 확인
+Supabase SQL Editor에서:
 
-Supabase Dashboard의 Authentication 설정에서 Email/Password 로그인 방식이 활성화되어 있어야 합니다.
+`migration_v4_photo.sql`
 
-프로젝트 설정에 따라 회원가입 후 이메일 확인이 필요할 수 있습니다.
-이 경우 가입 직후 로그인되지 않고, 인증 메일을 확인한 다음 로그인하면 됩니다.
+전체 실행.
 
-## 4. URL / Key 넣기
+기존 회원/글/댓글은 유지됩니다.
 
-`index.html`에서 아래 부분을 찾습니다.
+### 3. index.html 교체
 
-```js
-const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
-const SUPABASE_KEY = "YOUR_PUBLISHABLE_KEY";
-```
+GitHub `Somang0/minigram`의 기존 `index.html`을
+ZIP 안의 새 `index.html`로 교체하고 Commit + Push.
 
-본인 Supabase 프로젝트의 **Project URL**과 **Publishable Key**로 변경합니다.
+### 4. 테스트
 
-중요:
-
-- 브라우저에서는 Publishable Key(또는 프로젝트에 표시되는 anon public key)만 사용
-- `service_role` / secret key는 절대 넣지 않기
-- GitHub 공개 저장소에 secret key를 올리면 안 됨
-
-RLS 정책이 실제 보안을 담당합니다.
-
-## 5. GitHub Pages 배포
-
-1. GitHub에서 새 repository 생성
-2. ZIP을 푼 뒤 `index.html`, `setup.sql`, `README.md` 업로드
-3. Repository → **Settings**
-4. **Pages**
-5. Source에서 **Deploy from a branch**
-6. Branch `main`, folder `/(root)` 선택
-7. Save
-
-배포 후 보통 아래 같은 주소로 접속합니다.
-
-```text
-https://사용자명.github.io/저장소이름/
-```
-
-## 6. 테스트 순서
-
-1. 사이트 접속
-2. `시작하기` 또는 `로그인` 클릭
-3. 회원가입 선택
-4. 닉네임 / 이메일 / 비밀번호 입력
-5. 이메일 인증이 켜져 있다면 인증
-6. 로그인
-7. 글 작성
-8. 다른 브라우저에서 다른 계정을 만들어 글 작성
-9. 서로의 글이 같은 피드에 표시되는지 확인
-10. 자기 글에만 `삭제` 버튼이 나타나는지 확인
+- 로그아웃 → 닉네임 + 비밀번호 + 사진 → 게시
+- 로그인 → 사진 게시
+- 사진만 선택하고 본문 없이 게시
+- 사진 + 본문 게시
+- 5MB 초과 파일 선택 시 차단 확인
 
 ## 구조
 
-```text
-GitHub Pages
-  index.html
-      │
-      ├── Supabase Auth
-      │      └── 회원가입 / 로그인 / 세션
-      │
-      └── Supabase PostgreSQL
-             ├── profiles
-             └── posts
-```
+브라우저
+→ Supabase Storage `post-images`
+→ public URL 생성
+→ `posts.image_url` 저장
+→ 피드에서 `<img>`로 표시
 
-## 보안 구조
+## 보안/운영 메모
 
-로그인 사용자가 브라우저에서 `posts`에 INSERT할 때:
+현재 비로그인 사용자도 사진 업로드가 가능하므로
+공개 URL이 널리 퍼질 경우 Storage가 스팸 업로드 대상이 될 수 있습니다.
 
-```text
-현재 로그인한 사용자 auth.uid()
-        =
-INSERT 하려는 posts.user_id
-```
+친구들끼리 쓰는 동안에는 간단하게 운영할 수 있지만,
+외부 공개 시에는 CAPTCHA, 초대코드, 업로드 rate limit 등을 추가하는 편이 좋습니다.
 
-인 경우에만 RLS가 허용합니다.
-
-삭제도 똑같이 본인의 `user_id`가 붙은 글만 허용됩니다.
-
-## 현재 예제에서 일부러 뺀 기능
-
-처음 배포해서 이해하기 쉽게 유지하기 위해 아래는 아직 넣지 않았습니다.
-
-- 프로필 사진 업로드
-- 좋아요
-- 게시글 이미지 업로드
-- 댓글 안의 대댓글
-- 팔로우 / 팔로워
-- DM
-- 관리자 화면
-- 비밀번호 재설정 UI
-
-이 기능들도 Supabase Storage / DB 테이블을 추가해 확장할 수 있습니다.
+현재 버전은 게시글 삭제 시 Storage 파일을 자동 삭제하지 않습니다.
+즉 글을 지워도 이미지 파일이 Storage에 남을 수 있습니다.
+다음 버전에서 이미지 경로 저장 + 안전한 Storage 삭제까지 추가할 수 있습니다.

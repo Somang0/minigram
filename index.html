@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head> 
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="light dark" />
@@ -383,13 +383,26 @@
 
     .comment-form {
       display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .comment-guest-credentials {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+    }
+
+    .comment-write-row {
+      display: flex;
       gap: 7px;
       align-items: center;
     }
 
-    .comment-name {
-      width: 90px;
-      min-width: 90px;
+    .comment-name,
+    .comment-password {
+      width: 100%;
+      min-width: 0;
     }
 
     .comment-input {
@@ -583,8 +596,8 @@
       .composer .avatar { display: none; }
       .guest-name-input, .guest-password-input { width: 100%; }
       .composer-input { flex-basis: calc(100% - 74px); }
-      .comment-form { flex-wrap: wrap; }
-      .comment-name { width: 100%; }
+      .comment-guest-credentials { grid-template-columns: 1fr 1fr; }
+      .comment-write-row { width: 100%; }
       .primary-btn { padding-left: 12px; padding-right: 12px; }
     }
   </style>
@@ -1535,7 +1548,11 @@
 
         let commentNameInput = null;
         let commentPasswordInput = null;
+
         if (!currentUser) {
+          const guestCredentials = document.createElement("div");
+          guestCredentials.className = "comment-guest-credentials";
+
           commentNameInput = document.createElement("input");
           commentNameInput.className = "comment-name";
           commentNameInput.maxLength = 20;
@@ -1548,15 +1565,14 @@
           commentPasswordInput.maxLength = 50;
           commentPasswordInput.placeholder = "비밀번호";
 
-          form.append(commentNameInput, commentPasswordInput);
+          guestCredentials.append(commentNameInput, commentPasswordInput);
+          form.appendChild(guestCredentials);
         }
 
         const commentInput = document.createElement("input");
         commentInput.className = "comment-input";
         commentInput.maxLength = 300;
-        commentInput.placeholder = currentUser
-          ? "댓글 달기..."
-          : "비로그인 댓글 달기...";
+        commentInput.placeholder = "댓글 달기...";
 
         const commentBtn = document.createElement("button");
         commentBtn.className = "comment-btn";
@@ -1569,10 +1585,16 @@
           if (e.key === "Enter") submitComment();
         });
 
-        form.append(commentInput, commentBtn);
+        const commentWriteRow = document.createElement("div");
+        commentWriteRow.className = "comment-write-row";
+        commentWriteRow.append(commentInput, commentBtn);
+
+        form.appendChild(commentWriteRow);
         commentsBox.append(commentList, form);
 
-        article.append(head, body, actions, commentsBox);
+        article.appendChild(head);
+        if (imageWrap) article.appendChild(imageWrap);
+        article.append(body, actions, commentsBox);
         els.feedList.appendChild(article);
       }
     }

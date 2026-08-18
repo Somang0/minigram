@@ -880,6 +880,64 @@
       }
     }
 
+
+    .daily-context {
+      border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line));
+      background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+      border-radius: 11px;
+      padding: 11px 13px;
+      margin: 0 14px 12px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .daily-context strong {
+      display: block;
+      color: var(--accent);
+      margin-bottom: 3px;
+      font-size: 11px;
+    }
+
+    .composer-context {
+      display: none;
+      margin: 0 0 11px;
+      padding: 11px 13px;
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--accent) 9%, var(--surface-2));
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .composer-context.show { display: block; }
+
+    .capsule-preview-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 15px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .capsule-preview-card .capsule-meta {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 5px 0 9px;
+    }
+
+    .capsule-preview-card .capsule-summary {
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .capsule-preview-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
 </style>
 </head>
 <body>
@@ -895,132 +953,78 @@
   </header>
 
   
+
 <main class="layout">
   <section class="feed single-column-shell">
 
     <section id="view-home" class="app-view active">
       <h2 class="tab-page-title">오늘의 우리</h2>
-      <p class="tab-page-sub">오늘 하나만 남겨도 나중엔 꽤 큰 추억이 돼.</p>
-      <section class="memory-dashboard" style="grid-template-columns:1fr">
-        <article class="memory-card daily-question">
-          <div class="eyebrow">🔥 오늘의 질문</div>
-          <h2 id="dailyQuestionText">오늘 우리끼리 남길 질문을 불러오는 중...</h2>
-          <div class="memory-card-actions">
-            <button id="answerDailyBtn" class="primary-btn">답변 남기기</button>
-            <span id="dailyAnswerHint" class="hint" style="margin:0">답변은 피드에 오늘의 기록으로 남아요.</span>
-          </div>
-        </article>
-      </section>
-      <div class="card" style="padding:18px">
-        <div class="eyebrow">✨ 오늘 한 줄</div>
-        <h3 style="margin:0 0 8px">피드에 가볍게 기록 남기기</h3>
+      <p class="tab-page-sub">오늘의 질문에 답을 남기면 질문과 답변이 함께 기록돼.</p>
+
+      <article class="memory-card daily-question">
+        <div class="eyebrow">🔥 오늘의 질문</div>
+        <h2 id="dailyQuestionText">오늘 우리끼리 남길 질문을 불러오는 중...</h2>
+        <div class="memory-card-actions">
+          <button id="answerDailyBtn" class="primary-btn">이 질문에 답하기</button>
+          <span id="dailyAnswerHint" class="hint" style="margin:0">피드에서도 질문과 답변이 같이 보여요.</span>
+        </div>
+      </article>
+
+      <div class="card" style="padding:18px;margin-top:14px">
+        <div class="eyebrow">✨ 자유 기록</div>
+        <h3 style="margin:0 0 8px">그냥 오늘 있었던 일도 남겨봐</h3>
         <p class="hint">사진 한 장, TMI 하나, 아무 말이나 괜찮아.</p>
-        <button id="homeGoFeedBtn" class="primary-btn">피드에 남기기</button>
+        <button id="homeGoFeedBtn" class="soft-btn">일반 글 쓰기</button>
       </div>
     </section>
 
     <section id="view-memories" class="app-view">
       <h2 class="tab-page-title">추억</h2>
-      <p class="tab-page-sub">예전 기록을 다시 보고, 같은 이름의 추억을 같이 모아봐.</p>
-      <section class="memory-dashboard" style="grid-template-columns:1fr">
-        <article class="memory-card daily-question">
-          <div class="eyebrow">🔥 오늘의 질문</div>
-          <h2 id="dailyQuestionText">오늘 우리끼리 남길 질문을 불러오는 중...</h2>
-          <div class="memory-card-actions">
-            <button id="answerDailyBtn" class="primary-btn">답변 남기기</button>
-            <span id="dailyAnswerHint" class="hint" style="margin:0">답변은 피드에 오늘의 기록으로 남아요.</span>
-          </div>
-        </article>
+      <p class="tab-page-sub">예전 기록을 다시 보고, 같은 이름의 공동 추억을 모아봐.</p>
 
-        <article class="memory-card">
-          <div class="eyebrow">⏳ 타임캡슐</div>
-          <h3>미래의 우리에게 보내기</h3>
-          <div id="nextCapsuleCountdown" class="capsule-countdown">아직 없음</div>
-          <div id="nextCapsuleText" class="hint">열릴 타임캡슐을 만들어봐.</div>
-          <div class="memory-card-actions">
-            <button id="makeCapsuleBtn" class="soft-btn">타임캡슐 쓰기</button>
-          </div>
-        </article>
+      <article class="memory-card">
+        <div class="eyebrow">🕰 추억 리턴</div>
+        <h3>예전의 우리</h3>
+        <div id="memoryReturnPreview" class="memory-return-preview">예전 글을 찾는 중...</div>
+        <div class="memory-card-actions">
+          <button id="refreshMemoryBtn" class="soft-btn">다른 추억 보기</button>
+        </div>
+      </article>
 
-        <article class="memory-card">
-          <div class="eyebrow">🕰 추억 리턴</div>
-          <h3>예전의 우리</h3>
-          <div id="memoryReturnPreview" class="memory-return-preview">예전 글을 찾는 중...</div>
-          <div class="memory-card-actions">
-            <button id="refreshMemoryBtn" class="soft-btn">다른 추억 보기</button>
-          </div>
-        </article>
-        <article class="memory-card daily-question">
-          <div class="eyebrow">🔥 오늘의 질문</div>
-          <h2 id="dailyQuestionText">오늘 우리끼리 남길 질문을 불러오는 중...</h2>
-          <div class="memory-card-actions">
-            <button id="answerDailyBtn" class="primary-btn">답변 남기기</button>
-            <span id="dailyAnswerHint" class="hint" style="margin:0">답변은 피드에 오늘의 기록으로 남아요.</span>
-          </div>
-        </article>
-
-        <article class="memory-card">
-          <div class="eyebrow">⏳ 타임캡슐</div>
-          <h3>미래의 우리에게 보내기</h3>
-          <div id="nextCapsuleCountdown" class="capsule-countdown">아직 없음</div>
-          <div id="nextCapsuleText" class="hint">열릴 타임캡슐을 만들어봐.</div>
-          <div class="memory-card-actions">
-            <button id="makeCapsuleBtn" class="soft-btn">타임캡슐 쓰기</button>
-          </div>
-        </article>
-
-        <article class="memory-card">
-          <div class="eyebrow">🕰 추억 리턴</div>
-          <h3>예전의 우리</h3>
-          <div id="memoryReturnPreview" class="memory-return-preview">예전 글을 찾는 중...</div>
-          <div class="memory-card-actions">
-            <button id="refreshMemoryBtn" class="soft-btn">다른 추억 보기</button>
-          </div>
-        </article>
-
-        <article class="memory-card" style="grid-column:1/-1">
-          <div class="eyebrow">📸 우리 추억 폴더</div>
-          <h3 style="margin-bottom:12px">같은 이름을 붙이면 공동 앨범처럼 모여요.</h3>
-          <div id="memoryAlbumStrip" class="memory-album-strip">
-            <button class="memory-chip active" data-memory-filter="">전체</button>
-          </div>
-        </article>
-      </section>
+      <article class="memory-card" style="margin-top:14px">
+        <div class="eyebrow">📸 우리 추억 폴더</div>
+        <h3 style="margin-bottom:12px">같은 이름의 기록을 한곳에 모아봐.</h3>
+        <div id="memoryAlbumStrip" class="memory-album-strip">
+          <button class="memory-chip active" data-memory-filter="">전체</button>
+        </div>
+        <div class="memory-card-actions">
+          <button id="memoryGoFeedBtn" class="primary-btn">공동추억 추가</button>
+        </div>
+      </article>
     </section>
 
     <section id="view-capsules" class="app-view">
       <h2 class="tab-page-title">타임캡슐</h2>
-      <p class="tab-page-sub">지금은 숨겨두고, 미래의 우리에게 공개해.</p>
-      <section class="memory-dashboard" style="grid-template-columns:1fr">
-        <article class="memory-card daily-question">
-          <div class="eyebrow">🔥 오늘의 질문</div>
-          <h2 id="dailyQuestionText">오늘 우리끼리 남길 질문을 불러오는 중...</h2>
-          <div class="memory-card-actions">
-            <button id="answerDailyBtn" class="primary-btn">답변 남기기</button>
-            <span id="dailyAnswerHint" class="hint" style="margin:0">답변은 피드에 오늘의 기록으로 남아요.</span>
-          </div>
-        </article>
+      <p class="tab-page-sub">잠겨 있어도 여기서는 존재와 공개 예정일을 확인할 수 있어.</p>
 
-        <article class="memory-card">
-          <div class="eyebrow">⏳ 타임캡슐</div>
-          <h3>미래의 우리에게 보내기</h3>
-          <div id="nextCapsuleCountdown" class="capsule-countdown">아직 없음</div>
-          <div id="nextCapsuleText" class="hint">열릴 타임캡슐을 만들어봐.</div>
-          <div class="memory-card-actions">
-            <button id="makeCapsuleBtn" class="soft-btn">타임캡슐 쓰기</button>
-          </div>
-        </article>
-      </section>
-      <div class="card" style="padding:18px">
-        <h3 style="margin-top:0">새 타임캡슐</h3>
-        <p class="hint">공개 날짜를 정하고 글이나 사진을 남겨봐.</p>
-        <button id="capsuleGoFeedBtn" class="primary-btn">타임캡슐 만들기</button>
+      <article class="memory-card">
+        <div class="eyebrow">⏳ 다음 공개</div>
+        <div id="nextCapsuleCountdown" class="capsule-countdown">아직 없음</div>
+        <div id="nextCapsuleText" class="hint">열릴 타임캡슐을 만들어봐.</div>
+        <div class="memory-card-actions">
+          <button id="makeCapsuleBtn" class="primary-btn">새 타임캡슐 만들기</button>
+        </div>
+      </article>
+
+      <div style="margin-top:16px">
+        <h3 style="margin:0 0 10px">내가 만든 / 공개 예정 타임캡슐</h3>
+        <section id="capsuleList"></section>
       </div>
     </section>
 
     <section id="view-feed" class="app-view">
       <h2 class="tab-page-title">피드</h2>
-      <p class="tab-page-sub">글, 사진, 댓글은 여기에서만 보여.</p>
+      <p id="feedContextText" class="tab-page-sub">글, 사진, 댓글은 여기에서 확인해.</p>
       <section id="composerCard" class="card composer">
 
         <div class="composer-mode-tabs">
@@ -1029,6 +1033,7 @@
           <button data-mode="capsule">⏳ 타임캡슐</button>
           <button data-mode="memory">📸 공동추억</button>
         </div>
+        <div id="composerContext" class="composer-context"></div>
         <div class="composer-row">
           <div class="avatar"><span id="composerAvatar">?</span></div>
           <input id="guestPostName" class="guest-name-input" maxlength="20"
@@ -1067,9 +1072,8 @@
 
     <section id="view-profile" class="app-view">
       <h2 class="tab-page-title">내정보</h2>
-      <p class="tab-page-sub">로그인, 계정 정보, 내 활동을 관리해.</p>
-      <div class="single-column-shell">
-        <aside class="sidebar">
+      <p class="tab-page-sub">로그인과 계정 정보를 관리해.</p>
+      <aside class="sidebar">
       <section id="profilePanel" class="card profile-box" hidden>
         <div class="profile-line">
           <div class="avatar"><span id="sideAvatar">?</span></div>
@@ -1087,7 +1091,6 @@
         <button id="guestLoginBtn" class="primary-btn">시작하기</button>
       </section>
     </aside>
-      </div>
     </section>
 
   </section>
@@ -1100,6 +1103,7 @@
   <button data-tab="feed"><span>💬</span><span>피드</span></button>
   <button data-tab="profile"><span>👤</span><span>내정보</span></button>
 </nav>
+
 
 
   <div id="authModal" class="modal-wrap" role="dialog" aria-modal="true">
@@ -1152,6 +1156,9 @@
 
     const els = {
       dailyQuestionText: document.getElementById("dailyQuestionText"),
+      composerContext: document.getElementById("composerContext"),
+      feedContextText: document.getElementById("feedContextText"),
+      capsuleList: document.getElementById("capsuleList"),
       answerDailyBtn: document.getElementById("answerDailyBtn"),
       makeCapsuleBtn: document.getElementById("makeCapsuleBtn"),
       nextCapsuleCountdown: document.getElementById("nextCapsuleCountdown"),
@@ -1204,6 +1211,8 @@
     let activeMemoryFilter = "";
     let memoryReturnPool = [];
     let memoryReturnIndex = 0;
+    let currentDailyQuestion = "";
+    let capsuleMetadataCache = [];
 
     const DAILY_QUESTIONS = [
       "오늘 제일 어이없었던 일은?",
@@ -1458,7 +1467,8 @@
     }
 
     function renderDailyQuestion() {
-      els.dailyQuestionText.textContent = getDailyQuestion();
+      currentDailyQuestion = getDailyQuestion();
+      els.dailyQuestionText.textContent = currentDailyQuestion;
     }
 
     function setComposerMode(mode) {
@@ -1466,18 +1476,31 @@
       document.querySelectorAll(".composer-mode-tabs button").forEach(btn => {
         btn.classList.toggle("active", btn.dataset.mode === mode);
       });
+
       els.capsuleFields.classList.toggle("show", mode === "capsule");
       els.memoryFields.classList.toggle("show", mode === "memory");
 
+      let context = "";
+
       if (mode === "daily") {
-        els.postInput.placeholder = "오늘의 질문에 답해봐...";
+        context = `🔥 오늘의 질문<br><strong>${currentDailyQuestion || getDailyQuestion()}</strong>`;
+        els.postInput.placeholder = "이 질문에 대한 답을 남겨봐...";
+        els.feedContextText.textContent = "오늘의 질문과 답변이 함께 저장돼.";
       } else if (mode === "capsule") {
+        context = "⏳ 타임캡슐 · 공개 날짜 전에는 내용이 잠겨요.";
         els.postInput.placeholder = "미래의 우리에게 남길 말을 써봐...";
+        els.feedContextText.textContent = "타임캡슐 작성 중 · 저장 후 캡슐 탭에서 공개 예정일을 확인할 수 있어.";
       } else if (mode === "memory") {
+        context = "📸 공동추억 · 같은 추억 이름을 쓰면 한 폴더처럼 모여요.";
         els.postInput.placeholder = "이 추억에 남길 이야기를 써봐...";
+        els.feedContextText.textContent = "공동추억을 작성 중이야.";
       } else {
-        els.postInput.placeholder = "무슨 생각을 하고 있나요?";
+        els.postInput.placeholder = currentUser ? "무슨 생각을 하고 있나요?" : "로그인 없이도 글을 남길 수 있어요";
+        els.feedContextText.textContent = "글, 사진, 댓글은 여기에서 확인해.";
       }
+
+      els.composerContext.innerHTML = context;
+      els.composerContext.classList.toggle("show", Boolean(context));
     }
 
     document.querySelectorAll(".composer-mode-tabs button").forEach(btn => {
@@ -1508,6 +1531,183 @@
       setComposerMode("capsule");
       setTimeout(() => els.postInput.focus(), 50);
     });
+
+
+    document.getElementById("memoryGoFeedBtn")?.addEventListener("click", () => {
+      openTab("feed");
+      setComposerMode("memory");
+      setTimeout(() => els.memoryTitleInput.focus(), 50);
+    });
+
+
+    function formatCapsuleCountdown(unlockAt) {
+      const diff = new Date(unlockAt) - new Date();
+      if (diff <= 0) return "공개됨";
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      if (days > 0) return `D-${days}`;
+      if (hours > 0) return `${hours}시간 ${mins}분 후`;
+      return `${Math.max(mins, 1)}분 후`;
+    }
+
+    async function loadCapsules() {
+      els.capsuleList.innerHTML = '<div class="card empty">타임캡슐을 불러오는 중...</div>';
+
+      const { data: visibleCapsules, error } = await supabase
+        .from("posts")
+        .select(`
+          id, content, image_url, created_at, user_id, guest_name,
+          unlock_at, post_type,
+          profiles ( username )
+        `)
+        .eq("post_type", "capsule")
+        .order("unlock_at", { ascending: true });
+
+      if (error) {
+        console.error(error);
+        els.capsuleList.innerHTML = `<div class="card empty">캡슐 오류: ${escapeText(error.message)}</div>`;
+        return;
+      }
+
+      // 잠긴 비로그인 캡슐은 RLS 때문에 본문 행이 안 보이므로
+      // 안전한 메타데이터 RPC에서 id/닉네임/날짜만 추가로 받음.
+      const { data: guestMeta, error: metaError } = await supabase.rpc("list_locked_guest_capsules");
+      if (metaError) console.error(metaError);
+
+      const items = [];
+      const seen = new Set();
+
+      for (const c of (visibleCapsules || [])) {
+        items.push({ ...c, metadataOnly: false });
+        seen.add(String(c.id));
+      }
+
+      for (const m of (guestMeta || [])) {
+        if (!seen.has(String(m.id))) {
+          items.push({
+            id: m.id,
+            guest_name: m.guest_name,
+            unlock_at: m.unlock_at,
+            created_at: m.created_at,
+            metadataOnly: true,
+            user_id: null,
+            content: null,
+            image_url: null,
+            profiles: null
+          });
+        }
+      }
+
+      items.sort((a,b) => new Date(a.unlock_at) - new Date(b.unlock_at));
+      capsuleMetadataCache = items;
+
+      if (!items.length) {
+        els.capsuleList.innerHTML = '<div class="card empty">아직 타임캡슐이 없어.</div>';
+        return;
+      }
+
+      els.capsuleList.innerHTML = "";
+
+      for (const c of items) {
+        const locked = new Date(c.unlock_at) > new Date();
+        const mine = Boolean(currentUser && c.user_id === currentUser.id);
+        const guest = !c.user_id;
+        const card = document.createElement("article");
+        card.className = "capsule-preview-card";
+
+        const who = c.profiles?.username || c.guest_name || "guest";
+        const title = document.createElement("strong");
+        title.textContent = `⏳ ${who}의 타임캡슐`;
+
+        const meta = document.createElement("div");
+        meta.className = "capsule-meta";
+        meta.textContent = `${new Date(c.unlock_at).toLocaleString("ko-KR")} 공개 · ${formatCapsuleCountdown(c.unlock_at)}`;
+
+        const summary = document.createElement("div");
+        summary.className = "capsule-summary";
+
+        if (c.metadataOnly) {
+          summary.textContent = "🔒 비로그인 사용자가 만든 잠긴 타임캡슐입니다. 내용은 공개일까지 숨겨져 있어요.";
+        } else if (locked && mine) {
+          summary.textContent = c.content?.trim() || (c.image_url ? "📷 사진이 들어 있는 타임캡슐" : "내용 없음");
+        } else if (locked) {
+          summary.textContent = "🔒 공개일까지 내용이 잠겨 있어요.";
+        } else {
+          summary.textContent = c.content?.trim() || (c.image_url ? "📷 사진 타임캡슐" : "공개된 타임캡슐");
+        }
+
+        card.append(title, meta, summary);
+
+        const actions = document.createElement("div");
+        actions.className = "capsule-preview-actions";
+
+        if (locked && mine) {
+          const edit = document.createElement("button");
+          edit.className = "soft-btn";
+          edit.textContent = "내용 수정";
+          edit.addEventListener("click", async () => {
+            const next = prompt("타임캡슐 내용을 수정하세요.", c.content || "");
+            if (next === null) return;
+            const { error: e } = await supabase.from("posts").update({ content: next.trim() }).eq("id", c.id);
+            if (e) return alert("수정 오류: " + e.message);
+            await loadCapsules();
+          });
+
+          const del = document.createElement("button");
+          del.className = "delete-btn";
+          del.textContent = "삭제";
+          del.addEventListener("click", async () => {
+            if (!confirm("이 타임캡슐을 삭제할까요?")) return;
+            const { error: e } = await supabase.from("posts").delete().eq("id", c.id);
+            if (e) return alert("삭제 오류: " + e.message);
+            await loadCapsules();
+            await loadFeed();
+          });
+          actions.append(edit, del);
+        }
+
+        if (locked && guest) {
+          const edit = document.createElement("button");
+          edit.className = "soft-btn";
+          edit.textContent = "비밀번호로 수정";
+          edit.addEventListener("click", async () => {
+            const password = prompt("작성 비밀번호를 입력하세요.");
+            if (password === null) return;
+            const next = prompt("타임캡슐 내용을 수정하세요.");
+            if (next === null) return;
+            const { data, error: e } = await supabase.rpc("update_guest_capsule", {
+              p_post_id: c.id,
+              p_password: password,
+              p_content: next.trim()
+            });
+            if (e) return alert("수정 오류: " + e.message);
+            if (data !== true) return alert("비밀번호가 맞지 않습니다.");
+            await loadCapsules();
+          });
+
+          const del = document.createElement("button");
+          del.className = "delete-btn";
+          del.textContent = "비밀번호로 삭제";
+          del.addEventListener("click", async () => {
+            const password = prompt("작성 비밀번호를 입력하세요.");
+            if (password === null) return;
+            const { data, error: e } = await supabase.rpc("delete_guest_post", {
+              p_post_id: c.id,
+              p_password: password
+            });
+            if (e) return alert("삭제 오류: " + e.message);
+            if (data !== true) return alert("비밀번호가 맞지 않습니다.");
+            await loadCapsules();
+            await loadFeed();
+          });
+          actions.append(edit, del);
+        }
+
+        if (actions.children.length) card.appendChild(actions);
+        els.capsuleList.appendChild(card);
+      }
+    }
 
     function renderMemoryReturn() {
       if (!memoryReturnPool.length) {
@@ -1741,7 +1941,8 @@
             post_type: postType,
             unlock_at: postType === "capsule" ? new Date(unlockAtRaw).toISOString() : null,
             memory_title: postType === "memory" ? memoryTitle : null,
-            daily_key: postType === "daily" ? todayKey() : null
+            daily_key: postType === "daily" ? todayKey() : null,
+            daily_question: postType === "daily" ? currentDailyQuestion : null
           });
         error = result.error;
       } else {
@@ -1753,7 +1954,8 @@
           p_post_type: postType,
           p_unlock_at: postType === "capsule" ? new Date(unlockAtRaw).toISOString() : null,
           p_memory_title: postType === "memory" ? memoryTitle : null,
-          p_daily_key: postType === "daily" ? todayKey() : null
+          p_daily_key: postType === "daily" ? todayKey() : null,
+          p_daily_question: postType === "daily" ? currentDailyQuestion : null
         });
         error = result.error;
       }
@@ -1777,6 +1979,10 @@
       setComposerMode("normal");
       setStatus(postType === "capsule" ? "타임캡슐을 보관했어요." : "게시했습니다.");
       await loadFeed();
+      if (postType === "capsule") {
+        await loadCapsules();
+        openTab("capsules");
+      }
     }
 
     els.postBtn.addEventListener("click", createPost);
@@ -2024,6 +2230,7 @@
           unlock_at,
           memory_title,
           daily_key,
+          daily_question,
           created_at,
           user_id,
           guest_name,
@@ -2064,7 +2271,7 @@
       });
       renderMemoryReturn();
       renderMemoryAlbums(data);
-      updateCapsuleDashboard(data);
+      updateCapsuleDashboard([...(data || []), ...capsuleMetadataCache]);
 
       const visibleData = activeMemoryFilter
         ? data.filter(p => p.memory_title === activeMemoryFilter)
@@ -2141,6 +2348,14 @@
         body.className = "post-body";
         body.textContent = escapeText(post.content);
         if (!post.content) body.hidden = true;
+
+        let dailyContext = null;
+        if (post.post_type === "daily") {
+          dailyContext = document.createElement("div");
+          dailyContext.className = "daily-context";
+          const question = post.daily_question || "오늘의 질문";
+          dailyContext.innerHTML = `<strong>🔥 이 답변의 질문</strong>${escapeText(question)}`;
+        }
 
         const isLockedCapsule =
           post.post_type === "capsule" &&
@@ -2295,6 +2510,7 @@
         if (isLockedCapsule) commentsBox.style.display = "none";
 
         article.appendChild(head);
+        if (dailyContext) article.appendChild(dailyContext);
         if (isLockedCapsule) {
           article.appendChild(lockedBox);
         } else {
@@ -2311,6 +2527,7 @@
       await loadMyProfile();
       renderSession();
       await loadFeed();
+      await loadCapsules();
     }
 
     const { data: sessionData } = await supabase.auth.getSession();
